@@ -27,7 +27,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $jam_malam       = $_POST['jam_malam'];
     $status          = $_POST['status'];
 
-    $query = "INSERT INTO kos (user_id, nama_kos, alamat, kampus_terdekat, harga, gender, fasilitas, jam_malam, status, terverifikasi, rating) VALUES ('$user_id', '$nama_kos', '$alamat', '$kampus_terdekat', '$harga', '$gender', '$fasilitas', '$jam_malam', '$status', 0, 0)";
+    $lat = !empty($_POST['lat']) ? (float)$_POST['lat'] : null;
+    $lng = !empty($_POST['lng']) ? (float)$_POST['lng'] : null;
+
+    $lat_val = $lat !== null ? "'$lat'" : "NULL";
+    $lng_val = $lng !== null ? "'$lng'" : "NULL";
+
+    $query = "INSERT INTO kos (user_id, nama_kos, alamat, kampus_terdekat, harga, gender, fasilitas, jam_malam, status, terverifikasi, rating, lat, lng) VALUES ('$user_id', '$nama_kos', '$alamat', '$kampus_terdekat', '$harga', '$gender', '$fasilitas', '$jam_malam', '$status', 0, 0, $lat_val, $lng_val)";
 
     if(mysqli_query($conn, $query)){
         $success = "Kos berhasil ditambahkan! Menunggu verifikasi admin.";
@@ -134,6 +140,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                         <option value="hampir_penuh">Hampir Penuh</option>
                         <option value="penuh">Penuh</option>
                     </select>
+                </div>
+
+                <div class="form-section-title">Lokasi di Peta (Opsional)</div>
+
+                <div class="input-group">
+                    <label>Latitude <span style="color:#9CA3AF; font-weight:400;">(contoh: -8.5833)</span></label>
+                    <input type="text" name="lat" placeholder="-8.5833">
+                </div>
+
+                <div class="input-group">
+                    <label>Longitude <span style="color:#9CA3AF; font-weight:400;">(contoh: 116.1167)</span></label>
+                    <input type="text" name="lng" placeholder="116.1167">
                 </div>
 
                 <div style="display:flex; gap:15px; margin-top:10px;">
