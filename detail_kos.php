@@ -21,10 +21,9 @@ if(!$kos){
     exit;
 }
 
-$user_id = $_SESSION['id'];
-
-$is_fav = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM favorites WHERE user_id='$user_id' AND kos_id='$id'"))[0];
-
+$user_id  = $_SESSION['id'];
+$is_fav   = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM favorites WHERE user_id='$user_id' AND kos_id='$id'"))[0];
+$foto_list = mysqli_query($conn, "SELECT * FROM kos_foto WHERE kos_id='$id' ORDER BY is_primary DESC");
 $ulasan_list = mysqli_query($conn, "SELECT r.*, u.nama AS nama_reviewer FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.kos_id='$id' ORDER BY r.created_at DESC");
 
 $error   = "";
@@ -33,23 +32,34 @@ $success = "";
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
     $rating   = (int)$_POST['rating'];
     $komentar = mysqli_real_escape_string($conn, $_POST['komentar']);
-
-    $cek = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM reviews WHERE kos_id='$id' AND user_id='$user_id'"));
+    $cek      = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM reviews WHERE kos_id='$id' AND user_id='$user_id'"));
 
     if($cek[0] > 0){
         $error = "Anda sudah pernah memberikan ulasan untuk kos ini.";
     } elseif(strlen($komentar) < 20){
         $error = "Komentar minimal 20 karakter.";
     } else {
-        mysqli_query($conn, "INSERT INTO reviews (kos_id, user_id, rating, komentar, created_at) VALUES ('$id', '$user_id', '$rating', '$komentar', NOW())");
-
+        $foto_ulasan = null;
+        if(!empty($_FILES['foto_ulasan']['name']) && $_FILES['foto_ulasan']['error'] == 0){
+            $allowed = ['image/jpeg', 'image/png'];
+            if(in_array($_FILES['foto_ulasan']['type'], $allowed)){
+                $ext      = pathinfo($_FILES['foto_ulasan']['name'], PATHINFO_EXTENSION);
+                $filename = 'ulasan_' . $user_id . '_' . time() . '.' . $ext;
+                move_uploaded_file($_FILES['foto_ulasan']['tmp_name'], 'uploads/' . $filename);
+                $foto_ulasan = $filename;
+            }
+        }
+        $foto_val = $foto_ulasan ? "'$foto_ulasan'" : "NULL";
+        mysqli_query($conn, "INSERT INTO reviews (kos_id, user_id, rating, komentar, foto, created_at) VALUES ('$id', '$user_id', '$rating', '$komentar', $foto_val, NOW())");
         $avg = mysqli_fetch_row(mysqli_query($conn, "SELECT ROUND(AVG(rating),1) FROM reviews WHERE kos_id='$id'"))[0];
         mysqli_query($conn, "UPDATE kos SET rating='$avg' WHERE id='$id'");
-
         $success     = "Ulasan berhasil dikirim!";
         $ulasan_list = mysqli_query($conn, "SELECT r.*, u.nama AS nama_reviewer FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.kos_id='$id' ORDER BY r.created_at DESC");
     }
 }
+
+$foto_arr = [];
+while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -76,28 +86,40 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
 
 <div class="detail-container">
 
-    <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop" class="detail-img">
+    <?php if(count($foto_arr) > 0): ?>
+    <div class="foto-galeri">
+        <img src="uploads/<?= $foto_arr[0]['nama_file'] ?>" class="detail-img" id="foto-main" alt="Foto kos">
+        <?php if(count($foto_arr) > 1): ?>
+        <div class="foto-thumb-row">
+            <?php foreach($foto_arr as $f): ?>
+            <img src="uploads/<?= $f['nama_file'] ?>" class="foto-thumb" onclick="document.getElementById('foto-main').src=this.src" alt="Foto kos">
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php else: ?>
+    <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop" class="detail-img" alt="Foto kos">
+    <?php endif; ?>
 
     <div class="detail-body">
 
         <div class="detail-left">
 
-            <div class="badge-group" style="margin-bottom:15px;">
-                <div class="badge verified">Terverifikasi</div>
-                <?php if($kos['status'] == 'tersedia'): ?>
-                    <div class="badge verified">Tersedia</div>
-                <?php elseif($kos['status'] == 'hampir_penuh'): ?>
-                    <div class="badge cheap">Hampir Penuh</div>
-                <?php else: ?>
-                    <div class="badge full">Penuh</div>
-                <?php endif; ?>
+            <div class="detail-badge-wrap">
+                <div class="badge-group">
+                    <div class="badge verified">Terverifikasi</div>
+                    <?php if($kos['status'] == 'tersedia'): ?>
+                        <div class="badge verified">Tersedia</div>
+                    <?php elseif($kos['status'] == 'hampir_penuh'): ?>
+                        <div class="badge cheap">Hampir Penuh</div>
+                    <?php else: ?>
+                        <div class="badge full">Penuh</div>
+                    <?php endif; ?>
+                </div>
             </div>
 
-            <h2 style="color:#1F2937; font-size:28px; margin-bottom:10px;"><?= htmlspecialchars($kos['nama_kos']) ?></h2>
-
-            <div class="price" style="font-size:28px; margin-bottom:20px;">
-                Rp<?= number_format($kos['harga'], 0, ',', '.') ?> / bulan
-            </div>
+            <h2 class="detail-nama"><?= htmlspecialchars($kos['nama_kos']) ?></h2>
+            <div class="detail-price">Rp<?= number_format($kos['harga'], 0, ',', '.') ?> / bulan</div>
 
             <div class="detail-info-grid">
                 <div class="detail-info-item">
@@ -105,7 +127,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
                     <div class="detail-info-value"><?= htmlspecialchars($kos['alamat']) ?></div>
                 </div>
                 <div class="detail-info-item">
-                    <div class="detail-info-label">🏫 Kampus Terdekat</div>
+                    <div class="detail-info-label">🏫 Dekat Lokasi</div>
                     <div class="detail-info-value"><?= htmlspecialchars($kos['kampus_terdekat']) ?></div>
                 </div>
                 <div class="detail-info-item">
@@ -117,9 +139,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
                     <div class="detail-info-value"><?= $kos['jam_malam'] ? htmlspecialchars($kos['jam_malam']) : 'Bebas jam malam' ?></div>
                 </div>
                 <div class="detail-info-item">
-                    <div class="detail-info-label">
-                        <?= $kos['gender'] == 'putra' ? '👨' : ($kos['gender'] == 'putri' ? '👩' : '👥') ?> Tipe Kos
-                    </div>
+                    <div class="detail-info-label"><?= $kos['gender'] == 'putra' ? '👨' : ($kos['gender'] == 'putri' ? '👩' : '👥') ?> Tipe Kos</div>
                     <div class="detail-info-value">Kos <?= ucfirst($kos['gender']) ?></div>
                 </div>
                 <div class="detail-info-item">
@@ -129,25 +149,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
             </div>
 
             <?php if($kos['lat'] && $kos['lng']): ?>
-            <div style="margin-top:30px;">
-                <h3 style="color:#1F2937; margin-bottom:15px;">📍 Lokasi Kos</h3>
-                <div id="map-detail" style="height:280px; border-radius:16px; overflow:hidden;"></div>
+            <div class="map-container">
+                <h3 class="map-title">📍 Lokasi Kos</h3>
+                <div id="map-detail" class="map-detail"></div>
             </div>
             <?php endif; ?>
 
             <div class="ulasan-section">
-
-                <h3 style="color:#1F2937; margin-bottom:20px;">Ulasan Penghuni</h3>
+                <h3 class="ulasan-title">Ulasan Penghuni</h3>
 
                 <?php if($error): ?>
-                    <p style="color:red; margin-bottom:15px;"><?= $error ?></p>
+                    <div class="alert-error"><?= $error ?></div>
                 <?php endif; ?>
-
                 <?php if($success): ?>
-                    <p style="color:green; margin-bottom:15px;"><?= $success ?></p>
+                    <div class="alert-success"><?= $success ?></div>
                 <?php endif; ?>
 
-                <form action="" method="POST" style="background:#F9FAFB; padding:20px; border-radius:16px; margin-bottom:25px;">
+                <form action="" method="POST" enctype="multipart/form-data" class="ulasan-form">
                     <div class="input-group">
                         <label>Rating</label>
                         <select name="rating" required>
@@ -159,27 +177,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Komentar <span style="color:#9CA3AF; font-weight:400;">(min. 20 karakter)</span></label>
-                        <textarea name="komentar" rows="3" placeholder="Bagikan pengalaman Anda..." style="width:100%; padding:15px; border:1px solid #D1D5DB; border-radius:12px; outline:none; font-size:14px; resize:vertical;" required></textarea>
+                        <label>Komentar <span class="input-hint">(min. 20 karakter)</span></label>
+                        <textarea name="komentar" class="ulasan-textarea" rows="3" placeholder="Bagikan pengalaman Anda..." required></textarea>
                     </div>
-                    <button type="submit" name="kirim_ulasan" class="btn" style="padding:12px;">Kirim Ulasan</button>
+                    <div class="input-group">
+                        <label>Foto Pendukung <span class="input-hint">(opsional, maks. 1 foto)</span></label>
+                        <input type="file" name="foto_ulasan" class="upload-input" accept="image/jpeg,image/png">
+                    </div>
+                    <button type="submit" name="kirim_ulasan" class="btn">Kirim Ulasan</button>
                 </form>
 
                 <?php if(mysqli_num_rows($ulasan_list) == 0): ?>
-                    <p style="color:#9CA3AF; text-align:center; padding:30px 0;">Belum ada ulasan untuk kos ini.</p>
+                    <p class="ulasan-empty">Belum ada ulasan untuk kos ini.</p>
                 <?php else: ?>
                     <?php while($ulasan = mysqli_fetch_assoc($ulasan_list)): ?>
                     <div class="ulasan-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <strong style="color:#1F2937;"><?= htmlspecialchars($ulasan['nama_reviewer']) ?></strong>
-                            <span style="color:#F0A629;"><?= str_repeat('⭐', $ulasan['rating']) ?></span>
+                        <div class="ulasan-card-header">
+                            <span class="ulasan-nama"><?= htmlspecialchars($ulasan['nama_reviewer']) ?></span>
+                            <span class="ulasan-rating"><?= str_repeat('⭐', $ulasan['rating']) ?></span>
                         </div>
-                        <p style="color:#6B7280; font-size:14px;"><?= htmlspecialchars($ulasan['komentar']) ?></p>
-                        <p style="color:#9CA3AF; font-size:12px; margin-top:8px;"><?= date('d M Y', strtotime($ulasan['created_at'])) ?></p>
+                        <p class="ulasan-komentar"><?= htmlspecialchars($ulasan['komentar']) ?></p>
+                        <?php if(!empty($ulasan['foto'])): ?>
+                            <img src="uploads/<?= $ulasan['foto'] ?>" class="ulasan-foto" onclick="window.open(this.src)" alt="Foto ulasan">
+                        <?php endif; ?>
+                        <p class="ulasan-tanggal"><?= date('d M Y', strtotime($ulasan['created_at'])) ?></p>
                     </div>
                     <?php endwhile; ?>
                 <?php endif; ?>
-
             </div>
 
         </div>
@@ -187,32 +211,32 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
         <div class="detail-right">
 
             <div class="kontak-card">
-                <h3 style="color:#1F2937; margin-bottom:15px;">Kontak Pemilik</h3>
-                <div style="font-size:32px; text-align:center; margin-bottom:10px;">🏠</div>
-                <p style="color:#1F2937; font-weight:600; text-align:center; margin-bottom:5px;"><?= htmlspecialchars($kos['nama_pemilik']) ?></p>
-                <p style="color:#6B7280; text-align:center; font-size:14px; margin-bottom:20px;">Pemilik Kos</p>
+                <h3 class="kontak-title">Kontak Pemilik</h3>
+                <div class="kontak-icon">🏠</div>
+                <p class="kontak-nama"><?= htmlspecialchars($kos['nama_pemilik']) ?></p>
+                <p class="kontak-role">Pemilik Kos</p>
                 <?php if($kos['hp_pemilik']): ?>
                     <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $kos['hp_pemilik']) ?>" target="_blank">
-                        <button class="btn" style="width:100%; padding:14px;">💬 Hubungi via WhatsApp</button>
+                        <button class="btn">💬 Hubungi via WhatsApp</button>
                     </a>
-                    <p style="color:#6B7280; text-align:center; font-size:13px; margin-top:10px;">📞 <?= htmlspecialchars($kos['hp_pemilik']) ?></p>
+                    <p class="kontak-hp">📞 <?= htmlspecialchars($kos['hp_pemilik']) ?></p>
                 <?php else: ?>
-                    <p style="color:#9CA3AF; text-align:center; font-size:14px;">Kontak tidak tersedia</p>
+                    <p class="kontak-empty">Kontak tidak tersedia</p>
                 <?php endif; ?>
             </div>
 
             <a href="favorit.php?aksi=<?= $is_fav ? 'hapus' : 'tambah' ?>&kos_id=<?= $id ?>&redirect=detail_kos.php?id=<?= $id ?>">
-                <button class="btn" style="width:100%; padding:12px; margin-top:15px; background:<?= $is_fav ? '#9CA3AF' : '#EF4444' ?>;">
+                <button class="detail-right-btn <?= $is_fav ? 'detail-right-btn-fav-remove' : 'detail-right-btn-fav-add' ?>">
                     <?= $is_fav ? '💔 Hapus dari Favorit' : '❤️ Simpan ke Favorit' ?>
                 </button>
             </a>
 
             <a href="lapor_kos.php?id=<?= $kos['id'] ?>">
-                <button class="btn-report" style="width:100%; padding:12px; margin-top:10px; border-radius:12px;">🚩 Laporkan Kos Ini</button>
+                <button class="detail-right-btn detail-right-btn-lapor">🚩 Laporkan Kos Ini</button>
             </a>
 
             <a href="index_penyewa.php">
-                <button class="btn-detail" style="width:100%; padding:12px; margin-top:10px; border-radius:12px; background:#9CA3AF;">← Kembali</button>
+                <button class="detail-right-btn detail-right-btn-back">← Kembali</button>
             </a>
 
         </div>
@@ -224,12 +248,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
 <?php if($kos['lat'] && $kos['lng']): ?>
 <script>
 var map = L.map('map-detail').setView([<?= $kos['lat'] ?>, <?= $kos['lng'] ?>], 16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 L.marker([<?= $kos['lat'] ?>, <?= $kos['lng'] ?>])
     .addTo(map)
-    .bindPopup('<b><?= addslashes($kos['nama_kos']) ?></b><br>Rp<?= number_format($kos['harga'],0,',','.') ?>/bln')
+    .bindPopup('<b><?= addslashes(htmlspecialchars($kos['nama_kos'])) ?></b><br>Rp<?= number_format($kos['harga'],0,',','.') ?>/bln')
     .openPopup();
 </script>
 <?php endif; ?>
