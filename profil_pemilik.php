@@ -20,8 +20,8 @@ $success = "";
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $nama  = $_POST['nama'];
-    $no_hp = $_POST['no_hp'];
+    $nama  = mysqli_real_escape_string($conn, $_POST['nama']);
+    $no_hp = mysqli_real_escape_string($conn, $_POST['no_hp']);
 
     if(!empty($_POST['password'])){
         $password = md5($_POST['password']);
@@ -34,8 +34,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $success = "Profil berhasil diperbarui!";
     $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id='$user_id'"));
 }
-?>
 
+$total_kos           = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE user_id='$user_id'"))[0];
+$total_terverifikasi = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE user_id='$user_id' AND terverifikasi=1"))[0];
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -46,63 +48,90 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 </head>
 <body>
 
-    <div class="navbar">
-        <h1>CariKos.Ku</h1>
-        <div class="menu">
-            <a href="index_pemilik.php">Dashboard</a>
-            <a href="tambah_kos.php">Tambah Kos</a>
-            <a href="profil_pemilik.php">Profil</a>
-            <a href="logout.php">Logout</a>
+<div class="navbar">
+    <h1>CariKos.Ku</h1>
+    <div class="menu">
+        <a href="index_pemilik.php">Dashboard</a>
+        <a href="tambah_kos.php">Tambah Kos</a>
+        <a href="profil_pemilik.php">Profil</a>
+        <a href="logout.php">Logout</a>
+    </div>
+</div>
+
+<div class="profil-page">
+
+    <div class="profil-header pemilik">
+        <div class="profil-avatar">🏠</div>
+        <div class="profil-header-info">
+            <h2><?= htmlspecialchars($user['nama']) ?></h2>
+            <p>Pemilik Kos • <?= htmlspecialchars($user['email']) ?></p>
         </div>
     </div>
 
-    <div class="form-page">
+    <div class="profil-stat-grid">
+        <div class="profil-stat-item">
+            <div class="number">🏠 <?= $total_kos ?></div>
+            <div class="label">Total Kos</div>
+        </div>
+        <div class="profil-stat-item">
+            <div class="number">✅ <?= $total_terverifikasi ?></div>
+            <div class="label">Kos Terverifikasi</div>
+        </div>
+    </div>
 
-        <div class="form-card">
+    <?php if($error): ?><div class="alert-error"><?= $error ?></div><?php endif; ?>
+    <?php if($success): ?><div class="alert-success"><?= $success ?></div><?php endif; ?>
 
-            <div style="text-align:center; margin-bottom:30px;">
-                <div style="width:80px; height:80px; background:#157A6E; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; font-size:32px;">🏠</div>
-                <h2 style="color:#1F2937; font-size:22px;"><?= $user['nama'] ?></h2>
-                <p style="color:#6B7280; font-size:14px;">Pemilik Kos</p>
+    <form action="" method="POST" id="formProfil">
+        <div class="profil-body">
+
+            <div class="profil-card">
+                <h3>Informasi Akun</h3>
+                <div class="profil-input-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama" id="nama" value="<?= htmlspecialchars($user['nama']) ?>" required>
+                </div>
+                <div class="profil-input-group">
+                    <label>Email</label>
+                    <input type="email" value="<?= htmlspecialchars($user['email']) ?>" disabled>
+                </div>
+                <div class="profil-input-group">
+                    <label>Nomor HP / WhatsApp</label>
+                    <input type="text" name="no_hp" id="no_hp" value="<?= htmlspecialchars($user['no_hp'] ?? '') ?>" placeholder="Contoh: 08123456789">
+                </div>
             </div>
 
-            <?php if($error): ?>
-                <p style="color:red; margin-bottom:15px;"><?= $error ?></p>
-            <?php endif; ?>
-
-            <?php if($success): ?>
-                <p style="color:green; margin-bottom:15px;"><?= $success ?></p>
-            <?php endif; ?>
-
-            <form action="" method="POST">
-
-                <div class="input-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" name="nama" value="<?= $user['nama'] ?>" required>
+            <div class="profil-card">
+                <h3>Ganti Password</h3>
+                <div class="profil-input-group">
+                    <label>Password Baru <span class="input-hint">(kosongkan jika tidak ingin ganti)</span></label>
+                    <input type="password" name="password" id="password" placeholder="Masukkan password baru">
                 </div>
-
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" value="<?= $user['email'] ?>" disabled style="background:#F3F4F6; color:#9CA3AF;">
+                <div class="profil-input-group">
+                    <label>Konfirmasi Password Baru</label>
+                    <input type="password" id="confirm_password" placeholder="Ulangi password baru">
                 </div>
+            </div>
 
-                <div class="input-group">
-                    <label>Nomor HP / WhatsApp</label>
-                    <input type="text" name="no_hp" value="<?= $user['no_hp'] ?>" placeholder="Contoh: 08123456789">
-                </div>
-
-                <div class="input-group">
-                    <label>Password Baru <span style="color:#9CA3AF; font-weight:400;">(kosongkan jika tidak ingin ganti)</span></label>
-                    <input type="password" name="password" placeholder="Masukkan password baru">
-                </div>
-
-                <button type="submit" class="btn">Simpan Perubahan</button>
-
-            </form>
+            <div class="profil-card full-width">
+                <button type="submit" class="profil-btn">Simpan Perubahan</button>
+            </div>
 
         </div>
+    </form>
 
-    </div>
+</div>
+
+<script>
+document.getElementById('formProfil').addEventListener('submit', function(e){
+    var nama     = document.getElementById('nama').value.trim();
+    var password = document.getElementById('password').value;
+    var confirm  = document.getElementById('confirm_password').value;
+    if(nama.length < 3){ e.preventDefault(); alert('Nama minimal 3 karakter.'); return; }
+    if(password !== '' && password.length < 6){ e.preventDefault(); alert('Password baru minimal 6 karakter.'); return; }
+    if(password !== confirm){ e.preventDefault(); alert('Konfirmasi password tidak cocok.'); return; }
+});
+</script>
 
 </body>
 </html>

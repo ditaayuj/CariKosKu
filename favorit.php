@@ -14,9 +14,9 @@ if($_SESSION['role'] != 'penyewa'){
 require "koneksi.php";
 
 $user_id  = $_SESSION['id'];
-$aksi     = isset($_GET['aksi'])     ? $_GET['aksi']     : '';
+$aksi     = isset($_GET['aksi'])     ? $_GET['aksi']           : '';
 $kos_id   = isset($_GET['kos_id'])   ? (int)$_GET['kos_id']   : 0;
-$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'favorit.php';
+$redirect = isset($_GET['redirect']) ? $_GET['redirect']       : 'favorit.php';
 
 if($aksi == 'tambah' && $kos_id){
     mysqli_query($conn, "INSERT IGNORE INTO favorites (user_id, kos_id) VALUES ('$user_id', '$kos_id')");
@@ -53,23 +53,26 @@ $query_fav = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM favori
     </div>
 </div>
 
-<div style="padding: 40px 60px 10px;">
-    <h2 style="color:#1F2937; font-size:28px;">❤️ Kos Favorit Saya</h2>
-    <p style="color:#6B7280; margin-top:6px;">Kos yang sudah kamu simpan untuk dibandingkan.</p>
+<div class="favorit-header">
+    <h2>❤️ Kos Favorit Saya</h2>
+    <p>Kos yang sudah kamu simpan untuk dibandingkan.</p>
 </div>
 
 <div class="listing-container">
 <?php if(mysqli_num_rows($query_fav) == 0): ?>
-    <div class="empty-state" style="grid-column:1/-1;">
+    <div class="empty-state">
         <div class="empty-icon">❤️</div>
         <h3>Belum Ada Favorit</h3>
         <p>Simpan kos yang kamu suka dari halaman pencarian.</p>
         <a href="index_penyewa.php"><button class="btn-tambah">Cari Kos</button></a>
     </div>
 <?php else: ?>
-    <?php while($kos = mysqli_fetch_assoc($query_fav)): ?>
+    <?php while($kos = mysqli_fetch_assoc($query_fav)):
+        $foto_utama = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nama_file FROM kos_foto WHERE kos_id='{$kos['id']}' AND is_primary=1 LIMIT 1"));
+        $img_src = $foto_utama ? 'uploads/' . $foto_utama['nama_file'] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop';
+    ?>
     <div class="card">
-        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop">
+        <img src="<?= $img_src ?>" alt="<?= htmlspecialchars($kos['nama_kos']) ?>">
         <div class="card-content">
             <div class="badge-group">
                 <?php if($kos['terverifikasi']): ?>
@@ -91,11 +94,11 @@ $query_fav = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM favori
             <div class="info"><?= $kos['gender'] == 'putra' ? '👨' : ($kos['gender'] == 'putri' ? '👩' : '👥') ?> Kos <?= ucfirst($kos['gender']) ?></div>
             <div class="rating">⭐ <?= $kos['rating'] > 0 ? $kos['rating'] : 'Belum ada rating' ?></div>
             <div class="button-group">
-                <a href="detail_kos.php?id=<?= $kos['id'] ?>" style="flex:1;">
-                    <button class="btn-detail" style="width:100%;">Lihat Detail</button>
+                <a href="detail_kos.php?id=<?= $kos['id'] ?>">
+                    <button class="btn-detail">Lihat Detail</button>
                 </a>
-                <a href="favorit.php?aksi=hapus&kos_id=<?= $kos['id'] ?>&redirect=favorit.php" style="flex:1;">
-                    <button class="btn-report" style="width:100%;">💔 Hapus</button>
+                <a href="favorit.php?aksi=hapus&kos_id=<?= $kos['id'] ?>&redirect=favorit.php">
+                    <button class="btn-report">💔 Hapus</button>
                 </a>
             </div>
         </div>

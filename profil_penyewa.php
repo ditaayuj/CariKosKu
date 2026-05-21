@@ -59,62 +59,80 @@ $total_ulasan = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM revie
     </div>
 </div>
 
-<div class="stats-container" style="max-width:700px; margin:40px auto 0;">
-    <div class="stat-card">
-        <div class="stat-icon stat-icon-red">❤️</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_fav ?></div>
-            <div class="stat-label">Kos Favorit</div>
+<div class="profil-page">
+
+    <div class="profil-header">
+        <div class="profil-avatar">🧑‍🎓</div>
+        <div class="profil-header-info">
+            <h2><?= htmlspecialchars($user['nama']) ?></h2>
+            <p>Penyewa Kos • <?= htmlspecialchars($user['email']) ?></p>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon stat-icon-green">⭐</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_ulasan ?></div>
-            <div class="stat-label">Ulasan Diberikan</div>
+
+    <div class="profil-stat-grid">
+        <div class="profil-stat-item">
+            <div class="number">❤️ <?= $total_fav ?></div>
+            <div class="label">Kos Favorit</div>
+        </div>
+        <div class="profil-stat-item">
+            <div class="number">⭐ <?= $total_ulasan ?></div>
+            <div class="label">Ulasan Diberikan</div>
         </div>
     </div>
+
+    <?php if($error): ?><div class="alert-error"><?= $error ?></div><?php endif; ?>
+    <?php if($success): ?><div class="alert-success"><?= $success ?></div><?php endif; ?>
+
+    <form action="" method="POST" id="formProfil">
+        <div class="profil-body">
+
+            <div class="profil-card">
+                <h3>Informasi Akun</h3>
+                <div class="profil-input-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama" id="nama" value="<?= htmlspecialchars($user['nama']) ?>" required>
+                </div>
+                <div class="profil-input-group">
+                    <label>Email</label>
+                    <input type="email" value="<?= htmlspecialchars($user['email']) ?>" disabled>
+                </div>
+                <div class="profil-input-group">
+                    <label>Nomor HP / WhatsApp</label>
+                    <input type="text" name="no_hp" id="no_hp" value="<?= htmlspecialchars($user['no_hp'] ?? '') ?>" placeholder="Contoh: 08123456789">
+                </div>
+            </div>
+
+            <div class="profil-card">
+                <h3>Ganti Password</h3>
+                <div class="profil-input-group">
+                    <label>Password Baru <span class="input-hint">(kosongkan jika tidak ingin ganti)</span></label>
+                    <input type="password" name="password" id="password" placeholder="Masukkan password baru">
+                </div>
+                <div class="profil-input-group">
+                    <label>Konfirmasi Password Baru</label>
+                    <input type="password" id="confirm_password" placeholder="Ulangi password baru">
+                </div>
+            </div>
+
+            <div class="profil-card full-width">
+                <button type="submit" class="profil-btn">Simpan Perubahan</button>
+            </div>
+
+        </div>
+    </form>
+
 </div>
 
-<div class="form-page" style="padding-top:20px;">
-    <div class="form-card">
-
-        <div style="text-align:center; margin-bottom:30px;">
-            <div style="width:80px; height:80px; background:#157A6E; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; font-size:32px;">🧑‍🎓</div>
-            <h2 style="color:#1F2937; font-size:22px;"><?= htmlspecialchars($user['nama']) ?></h2>
-            <p style="color:#6B7280; font-size:14px;">Penyewa Kos</p>
-        </div>
-
-        <?php if($error): ?>
-            <p style="color:red; margin-bottom:15px;"><?= $error ?></p>
-        <?php endif; ?>
-
-        <?php if($success): ?>
-            <p style="color:green; margin-bottom:15px;"><?= $success ?></p>
-        <?php endif; ?>
-
-        <form action="" method="POST">
-            <div class="input-group">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama" value="<?= htmlspecialchars($user['nama']) ?>" required>
-            </div>
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" value="<?= htmlspecialchars($user['email']) ?>" disabled style="background:#F3F4F6; color:#9CA3AF;">
-            </div>
-            <div class="input-group">
-                <label>Nomor HP / WhatsApp</label>
-                <input type="text" name="no_hp" value="<?= htmlspecialchars($user['no_hp'] ?? '') ?>" placeholder="Contoh: 08123456789">
-            </div>
-            <div class="input-group">
-                <label>Password Baru <span style="color:#9CA3AF; font-weight:400;">(kosongkan jika tidak ingin ganti)</span></label>
-                <input type="password" name="password" placeholder="Masukkan password baru">
-            </div>
-            <button type="submit" class="btn">Simpan Perubahan</button>
-        </form>
-
-    </div>
-</div>
+<script>
+document.getElementById('formProfil').addEventListener('submit', function(e){
+    var nama     = document.getElementById('nama').value.trim();
+    var password = document.getElementById('password').value;
+    var confirm  = document.getElementById('confirm_password').value;
+    if(nama.length < 3){ e.preventDefault(); alert('Nama minimal 3 karakter.'); return; }
+    if(password !== '' && password.length < 6){ e.preventDefault(); alert('Password baru minimal 6 karakter.'); return; }
+    if(password !== confirm){ e.preventDefault(); alert('Konfirmasi password tidak cocok.'); return; }
+});
+</script>
 
 </body>
 </html>
