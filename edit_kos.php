@@ -14,7 +14,7 @@ if($_SESSION['role'] != 'pemilik'){
 require "koneksi.php";
 
 $user_id = $_SESSION['id'];
-$id      = $_GET['id'];
+$id      = (int)$_GET['id'];
 $error   = "";
 $success = "";
 
@@ -26,18 +26,17 @@ if(!$kos){
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $nama_kos        = $_POST['nama_kos'];
-    $alamat          = $_POST['alamat'];
-    $kampus_terdekat = $_POST['kampus_terdekat'];
-    $harga           = $_POST['harga'];
+    $nama_kos        = mysqli_real_escape_string($conn, $_POST['nama_kos']);
+    $alamat          = mysqli_real_escape_string($conn, $_POST['alamat']);
+    $kampus_terdekat = mysqli_real_escape_string($conn, $_POST['kampus_terdekat']);
+    $harga           = (int)$_POST['harga'];
     $gender          = $_POST['gender'];
-    $fasilitas       = $_POST['fasilitas'];
-    $jam_malam       = $_POST['jam_malam'];
+    $fasilitas       = mysqli_real_escape_string($conn, $_POST['fasilitas']);
+    $jam_malam       = mysqli_real_escape_string($conn, $_POST['jam_malam']);
     $status          = $_POST['status'];
 
     $lat = !empty($_POST['lat']) ? (float)$_POST['lat'] : null;
     $lng = !empty($_POST['lng']) ? (float)$_POST['lng'] : null;
-
     $lat_val = $lat !== null ? "'$lat'" : "NULL";
     $lng_val = $lng !== null ? "'$lng'" : "NULL";
 
@@ -58,6 +57,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Kos - CariKos.Ku</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -74,16 +75,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <div class="form-page">
     <div class="form-card">
 
-        <h2 class="form-title" style="text-align:left; margin-bottom:8px;">Edit Kos</h2>
-        <p style="color:#6B7280; margin-bottom:30px; font-size:14px;">Perbarui informasi kos Anda.</p>
+        <h2 class="form-card-title">Edit Kos</h2>
+        <p class="form-card-subtitle">Perbarui informasi kos Anda.</p>
 
-        <?php if($error): ?>
-            <p style="color:red; margin-bottom:15px;"><?= $error ?></p>
-        <?php endif; ?>
-
-        <?php if($success): ?>
-            <p style="color:green; margin-bottom:15px;"><?= $success ?></p>
-        <?php endif; ?>
+        <?php if($error): ?><div class="alert-error"><?= $error ?></div><?php endif; ?>
+        <?php if($success): ?><div class="alert-success"><?= $success ?></div><?php endif; ?>
 
         <form action="" method="POST" id="formEditKos">
 
@@ -91,23 +87,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
             <div class="input-group">
                 <label>Nama Kos</label>
-                <input type="text" name="nama_kos" id="nama_kos" value="<?= $kos['nama_kos'] ?>" required>
+                <input type="text" name="nama_kos" id="nama_kos" value="<?= htmlspecialchars($kos['nama_kos']) ?>" required>
             </div>
 
             <div class="input-group">
                 <label>Alamat Lengkap</label>
-                <input type="text" name="alamat" id="alamat" value="<?= $kos['alamat'] ?>" required>
+                <input type="text" name="alamat" id="alamat" value="<?= htmlspecialchars($kos['alamat']) ?>" required>
             </div>
 
             <div class="input-group">
-                <label>Kampus Terdekat</label>
-                <select name="kampus_terdekat" id="kampus_terdekat" required>
-                    <option value="Universitas Mataram (UNRAM)" <?= $kos['kampus_terdekat'] == 'Universitas Mataram (UNRAM)' ? 'selected' : '' ?>>Universitas Mataram (UNRAM)</option>
-                    <option value="UIN Mataram"                 <?= $kos['kampus_terdekat'] == 'UIN Mataram'                 ? 'selected' : '' ?>>UIN Mataram</option>
-                    <option value="UNDIKMA"                     <?= $kos['kampus_terdekat'] == 'UNDIKMA'                     ? 'selected' : '' ?>>UNDIKMA</option>
-                    <option value="Universitas Nahdlatul Wathan"<?= $kos['kampus_terdekat'] == 'Universitas Nahdlatul Wathan'? 'selected' : '' ?>>Universitas Nahdlatul Wathan</option>
-                    <option value="Lainnya"                     <?= $kos['kampus_terdekat'] == 'Lainnya'                     ? 'selected' : '' ?>>Lainnya</option>
-                </select>
+                <label>Dekat Lokasi / Kampus</label>
+                <input type="text" name="kampus_terdekat" id="kampus_terdekat"
+                    value="<?= htmlspecialchars($kos['kampus_terdekat']) ?>"
+                    placeholder="Contoh: Universitas Mataram, UIN Mataram, Epicentrum..."
+                    list="lokasi_list" required>
+                <datalist id="lokasi_list">
+                    <option value="Universitas Mataram (UNRAM)">
+                    <option value="UIN Mataram">
+                    <option value="UNDIKMA">
+                    <option value="Universitas Nahdlatul Wathan (UNW)">
+                    <option value="Epicentrum Mall">
+                    <option value="Mataram Mall">
+                    <option value="RS Provinsi NTB">
+                    <option value="Lombok Plaza">
+                </datalist>
             </div>
 
             <div class="form-section-title">Harga & Tipe</div>
@@ -130,39 +133,43 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
             <div class="input-group">
                 <label>Fasilitas</label>
-                <input type="text" name="fasilitas" id="fasilitas" value="<?= $kos['fasilitas'] ?>" required>
+                <input type="text" name="fasilitas" id="fasilitas" value="<?= htmlspecialchars($kos['fasilitas']) ?>" required>
             </div>
 
             <div class="input-group">
-                <label>Jam Malam <span style="color:#9CA3AF; font-weight:400;">(kosongkan jika bebas)</span></label>
-                <input type="text" name="jam_malam" value="<?= $kos['jam_malam'] ?>">
+                <label>Jam Malam <span class="input-hint">(kosongkan jika bebas)</span></label>
+                <input type="text" name="jam_malam" value="<?= htmlspecialchars($kos['jam_malam']) ?>">
             </div>
 
             <div class="input-group">
                 <label>Status Ketersediaan</label>
                 <select name="status" required>
-                    <option value="tersedia"    <?= $kos['status'] == 'tersedia'    ? 'selected' : '' ?>>Tersedia</option>
-                    <option value="hampir_penuh"<?= $kos['status'] == 'hampir_penuh'? 'selected' : '' ?>>Hampir Penuh</option>
-                    <option value="penuh"       <?= $kos['status'] == 'penuh'       ? 'selected' : '' ?>>Penuh</option>
+                    <option value="tersedia"     <?= $kos['status'] == 'tersedia'     ? 'selected' : '' ?>>Tersedia</option>
+                    <option value="hampir_penuh" <?= $kos['status'] == 'hampir_penuh' ? 'selected' : '' ?>>Hampir Penuh</option>
+                    <option value="penuh"        <?= $kos['status'] == 'penuh'        ? 'selected' : '' ?>>Penuh</option>
                 </select>
             </div>
 
             <div class="form-section-title">Lokasi di Peta (Opsional)</div>
 
-            <div class="input-group">
-                <label>Latitude <span style="color:#9CA3AF; font-weight:400;">(contoh: -8.5833)</span></label>
-                <input type="text" name="lat" id="lat" value="<?= $kos['lat'] ?>" placeholder="-8.5833">
+            <p class="map-hint">Klik pada peta untuk menentukan lokasi kos. Geser marker untuk menyesuaikan posisi.</p>
+            <div id="map-picker" class="map-picker"></div>
+
+            <div class="map-coords">
+                <div class="input-group">
+                    <label>Latitude <span class="input-hint">(otomatis terisi)</span></label>
+                    <input type="text" name="lat" id="lat" value="<?= $kos['lat'] ?>" placeholder="Klik peta di atas" class="input-readonly" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Longitude <span class="input-hint">(otomatis terisi)</span></label>
+                    <input type="text" name="lng" id="lng" value="<?= $kos['lng'] ?>" placeholder="Klik peta di atas" class="input-readonly" readonly>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>Longitude <span style="color:#9CA3AF; font-weight:400;">(contoh: 116.1167)</span></label>
-                <input type="text" name="lng" id="lng" value="<?= $kos['lng'] ?>" placeholder="116.1167">
-            </div>
-
-            <div style="display:flex; gap:15px; margin-top:10px;">
-                <button type="submit" class="btn" style="flex:1;">Simpan Perubahan</button>
-                <a href="index_pemilik.php" style="flex:1;">
-                    <button type="button" class="btn" style="background:#9CA3AF; width:100%;">Batal</button>
+            <div class="form-actions">
+                <button type="submit" class="btn">Simpan Perubahan</button>
+                <a href="index_pemilik.php">
+                    <button type="button" class="btn btn-gray">Batal</button>
                 </a>
             </div>
 
@@ -172,63 +179,51 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 </div>
 
 <script>
+var defaultLat = <?= $kos['lat'] ? $kos['lat'] : -8.5833 ?>;
+var defaultLng = <?= $kos['lng'] ? $kos['lng'] : 116.1167 ?>;
+var hasCoord   = <?= ($kos['lat'] && $kos['lng']) ? 'true' : 'false' ?>;
+
+var map = L.map('map-picker').setView([defaultLat, defaultLng], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+var marker = hasCoord ? L.marker([defaultLat, defaultLng], {draggable: true}).addTo(map) : null;
+
+if(marker){
+    marker.on('dragend', function(){
+        var pos = marker.getLatLng();
+        document.getElementById('lat').value = pos.lat.toFixed(7);
+        document.getElementById('lng').value = pos.lng.toFixed(7);
+    });
+}
+
+map.on('click', function(e){
+    document.getElementById('lat').value = e.latlng.lat.toFixed(7);
+    document.getElementById('lng').value = e.latlng.lng.toFixed(7);
+    if(marker){ marker.setLatLng(e.latlng); }
+    else {
+        marker = L.marker(e.latlng, {draggable: true}).addTo(map);
+        marker.on('dragend', function(){
+            var pos = marker.getLatLng();
+            document.getElementById('lat').value = pos.lat.toFixed(7);
+            document.getElementById('lng').value = pos.lng.toFixed(7);
+        });
+    }
+});
+
 document.getElementById('formEditKos').addEventListener('submit', function(e){
-    var nama     = document.getElementById('nama_kos').value.trim();
-    var alamat   = document.getElementById('alamat').value.trim();
-    var kampus   = document.getElementById('kampus_terdekat').value;
-    var harga    = parseInt(document.getElementById('harga').value);
-    var gender   = document.getElementById('gender').value;
+    var nama      = document.getElementById('nama_kos').value.trim();
+    var alamat    = document.getElementById('alamat').value.trim();
+    var kampus    = document.getElementById('kampus_terdekat').value.trim();
+    var harga     = parseInt(document.getElementById('harga').value);
+    var gender    = document.getElementById('gender').value;
     var fasilitas = document.getElementById('fasilitas').value.trim();
-    var lat      = document.getElementById('lat').value.trim();
-    var lng      = document.getElementById('lng').value.trim();
 
-    if(nama.length < 3){
-        e.preventDefault();
-        alert('Nama kos minimal 3 karakter.');
-        return;
-    }
-
-    if(alamat.length < 10){
-        e.preventDefault();
-        alert('Alamat terlalu pendek, isi alamat lengkap.');
-        return;
-    }
-
-    if(kampus === ''){
-        e.preventDefault();
-        alert('Pilih kampus terdekat.');
-        return;
-    }
-
-    if(isNaN(harga) || harga <= 0){
-        e.preventDefault();
-        alert('Harga harus lebih dari 0.');
-        return;
-    }
-
-    if(gender === ''){
-        e.preventDefault();
-        alert('Pilih gender kos.');
-        return;
-    }
-
-    if(fasilitas.length < 3){
-        e.preventDefault();
-        alert('Fasilitas tidak boleh kosong.');
-        return;
-    }
-
-    if(lat !== '' && isNaN(parseFloat(lat))){
-        e.preventDefault();
-        alert('Format latitude tidak valid. Contoh: -8.5833');
-        return;
-    }
-
-    if(lng !== '' && isNaN(parseFloat(lng))){
-        e.preventDefault();
-        alert('Format longitude tidak valid. Contoh: 116.1167');
-        return;
-    }
+    if(nama.length < 3){ e.preventDefault(); alert('Nama kos minimal 3 karakter.'); return; }
+    if(alamat.length < 10){ e.preventDefault(); alert('Alamat terlalu pendek.'); return; }
+    if(kampus === ''){ e.preventDefault(); alert('Isi lokasi/kampus terdekat.'); return; }
+    if(isNaN(harga) || harga <= 0){ e.preventDefault(); alert('Harga harus lebih dari 0.'); return; }
+    if(gender === ''){ e.preventDefault(); alert('Pilih gender kos.'); return; }
+    if(fasilitas.length < 3){ e.preventDefault(); alert('Fasilitas tidak boleh kosong.'); return; }
 });
 </script>
 
