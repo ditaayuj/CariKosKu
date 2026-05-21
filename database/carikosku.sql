@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2026 at 06:46 AM
+-- Generation Time: May 21, 2026 at 04:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,6 +68,20 @@ INSERT INTO `kos` (`id`, `user_id`, `nama_kos`, `alamat`, `kampus_terdekat`, `ha
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `kos_foto`
+--
+
+CREATE TABLE `kos_foto` (
+  `id` int(11) NOT NULL,
+  `kos_id` int(11) NOT NULL,
+  `nama_file` varchar(255) NOT NULL,
+  `is_primary` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reports`
 --
 
@@ -93,7 +107,8 @@ CREATE TABLE `reviews` (
   `user_id` int(11) NOT NULL,
   `rating` int(11) NOT NULL CHECK (`rating` between 1 and 5),
   `komentar` text NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -120,7 +135,8 @@ INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `no_hp`, `create
 (3, 'Admin Juli', 'admin@carikosku.com', '4c37dbfae76a9a48544d7248127d2d29', 'admin', NULL, '2026-05-12 04:50:59'),
 (4, 'dita ayu julita', 'dita@gmail.com', '29c65f781a1068a41f735e1b092546de', 'penyewa', NULL, '2026-05-16 02:43:47'),
 (5, 'ayu', 'juli@gmail.com', '4c37dbfae76a9a48544d7248127d2d29', 'pemilik', NULL, '2026-05-16 02:45:53'),
-(6, 'Juli', 'juli@admin.com', '4c37dbfae76a9a48544d7248127d2d29', 'admin', NULL, '2026-05-16 02:54:53');
+(6, 'Juli', 'juli@admin.com', '4c37dbfae76a9a48544d7248127d2d29', 'admin', NULL, '2026-05-16 02:54:53'),
+(7, 'jinu', 'jinu@gmail.com', '9443563aa84a4291e2a1a095c2d066b7', 'penyewa', NULL, '2026-05-19 14:02:00');
 
 --
 -- Indexes for dumped tables
@@ -139,6 +155,12 @@ ALTER TABLE `favorites`
 ALTER TABLE `kos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `kos_foto`
+--
+ALTER TABLE `kos_foto`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `reports`
@@ -177,6 +199,12 @@ ALTER TABLE `kos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `kos_foto`
+--
+ALTER TABLE `kos_foto`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `reports`
 --
 ALTER TABLE `reports`
@@ -192,7 +220,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
