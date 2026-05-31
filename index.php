@@ -38,12 +38,6 @@
                         </button>
                     </a>
 
-                    <a href="login_admin.php">
-                        <button class="home-btn">
-                            Login Admin
-                        </button>
-                    </a>
-
                     <a href="register.php">
                         <button class="home-btn register-btn">
                             Register
