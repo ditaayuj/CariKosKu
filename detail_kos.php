@@ -51,8 +51,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['kirim_ulasan'])){
         }
         $foto_val = $foto_ulasan ? "'$foto_ulasan'" : "NULL";
         mysqli_query($conn, "INSERT INTO reviews (kos_id, user_id, rating, komentar, foto, created_at) VALUES ('$id', '$user_id', '$rating', '$komentar', $foto_val, NOW())");
-        $avg = mysqli_fetch_row(mysqli_query($conn, "SELECT ROUND(AVG(rating),1) FROM reviews WHERE kos_id='$id'"))[0];
-        mysqli_query($conn, "UPDATE kos SET rating='$avg' WHERE id='$id'");
+        mysqli_query($conn, "UPDATE kos SET rating = (SELECT ROUND(AVG(r.rating), 2) FROM reviews r WHERE r.kos_id = '$id') WHERE id = '$id'");
+        $avg = mysqli_fetch_row(mysqli_query($conn, "SELECT rating FROM kos WHERE id='$id'"))[0];
         $success     = "Ulasan berhasil dikirim!";
         $ulasan_list = mysqli_query($conn, "SELECT r.*, u.nama AS nama_reviewer FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.kos_id='$id' ORDER BY r.created_at DESC");
     }

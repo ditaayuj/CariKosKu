@@ -33,11 +33,19 @@ $total_penuh      = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM k
 <div class="navbar">
     <h1>CariKos.Ku</h1>
     <div class="menu">
-        <a href="index_pemilik.php">Dashboard</a>
-        <a href="tambah_kos.php">Tambah Kos</a>
-        <a href="profil_pemilik.php">Profil</a>
-        <a href="logout.php">Logout</a>
-    </div>
+    <a href="index_pemilik.php">Dashboard</a>
+    <a href="tambah_kos.php">Tambah Kos</a>
+    <a href="laporan_pemilik.php">
+        Laporan
+        <?php
+        $unread = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM notifikasi WHERE user_id='$user_id' AND is_read=0"))[0];
+        if($unread > 0): ?>
+            <span style="background:#EF4444; color:white; border-radius:999px; padding:2px 7px; font-size:11px; margin-left:4px;"><?= $unread ?></span>
+        <?php endif; ?>
+    </a>
+    <a href="profil_pemilik.php">Profil</a>
+    <a href="logout.php">Logout</a>
+</div>
 </div>
 
 <div class="dashboard-hero">

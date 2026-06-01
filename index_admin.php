@@ -15,14 +15,16 @@ require "koneksi.php";
 
 $nama             = $_SESSION['nama'];
 $total_user       = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM users WHERE role != 'admin'"))[0];
-$total_penyewa    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM users WHERE role = 'penyewa'"))[0];
-$total_pemilik    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM users WHERE role = 'pemilik'"))[0];
+$total_penyewa    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM users WHERE role='penyewa'"))[0];
+$total_pemilik    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM users WHERE role='pemilik'"))[0];
 $total_kos        = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos"))[0];
-$total_verified   = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE terverifikasi = 1"))[0];
-$total_unverified = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE terverifikasi = 0"))[0];
+$total_verified   = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE terverifikasi=1"))[0];
+$total_unverified = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM kos WHERE terverifikasi=0"))[0];
+$total_laporan    = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM reports WHERE status='pending'"))[0];
 
-$query_users = mysqli_query($conn, "SELECT * FROM users WHERE role != 'admin' ORDER BY created_at DESC");
-$query_kos   = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos k JOIN users u ON k.user_id = u.id ORDER BY k.created_at DESC");
+$query_users   = mysqli_query($conn, "SELECT * FROM users WHERE role != 'admin' ORDER BY created_at DESC");
+$query_kos     = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos k JOIN users u ON k.user_id=u.id ORDER BY k.created_at DESC");
+$query_laporan = mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, k.nama_kos, k.user_id AS pemilik_id FROM reports r JOIN users u ON r.reporter_id=u.id JOIN kos k ON r.kos_id=k.id ORDER BY r.created_at DESC");
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -53,45 +55,73 @@ $query_kos   = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos 
 <div class="stats-container">
     <div class="stat-card">
         <div class="stat-icon stat-icon-blue">👥</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_user ?></div>
-            <div class="stat-label">Total Pengguna</div>
-        </div>
+        <div class="stat-info"><div class="stat-number"><?= $total_user ?></div><div class="stat-label">Total Pengguna</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon stat-icon-green">🧑‍🎓</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_penyewa ?></div>
-            <div class="stat-label">Penyewa</div>
-        </div>
+        <div class="stat-info"><div class="stat-number"><?= $total_penyewa ?></div><div class="stat-label">Penyewa</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon stat-icon-yellow">🏠</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_pemilik ?></div>
-            <div class="stat-label">Pemilik Kos</div>
-        </div>
+        <div class="stat-info"><div class="stat-number"><?= $total_pemilik ?></div><div class="stat-label">Pemilik Kos</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon stat-icon-blue">🏘️</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_kos ?></div>
-            <div class="stat-label">Total Kos</div>
-        </div>
+        <div class="stat-info"><div class="stat-number"><?= $total_kos ?></div><div class="stat-label">Total Kos</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon stat-icon-green">✅</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_verified ?></div>
-            <div class="stat-label">Kos Terverifikasi</div>
-        </div>
+        <div class="stat-info"><div class="stat-number"><?= $total_verified ?></div><div class="stat-label">Kos Terverifikasi</div></div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon stat-icon-red">⏳</div>
-        <div class="stat-info">
-            <div class="stat-number"><?= $total_unverified ?></div>
-            <div class="stat-label">Belum Verifikasi</div>
-        </div>
+        <div class="stat-icon stat-icon-red">🚩</div>
+        <div class="stat-info"><div class="stat-number"><?= $total_laporan ?></div><div class="stat-label">Laporan Pending</div></div>
+    </div>
+</div>
+
+<div class="admin-section">
+    <h2 class="section-title">Laporan Masuk</h2>
+    <div class="table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kos Dilaporkan</th>
+                    <th>Pelapor</th>
+                    <th>Alasan</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $no = 1; while($lap = mysqli_fetch_assoc($query_laporan)): ?>
+                <tr>
+                    <td><?= $no++ ?></td>
+                    <td><?= htmlspecialchars($lap['nama_kos']) ?></td>
+                    <td><?= htmlspecialchars($lap['nama_pelapor']) ?></td>
+                    <td><?= htmlspecialchars($lap['alasan']) ?></td>
+                    <td>
+                        <span class="badge <?= $lap['level_peringatan'] == 0 ? 'new' : ($lap['level_peringatan'] == 1 ? 'cheap' : ($lap['level_peringatan'] == 2 ? 'popular' : 'full')) ?>">
+                            Level <?= $lap['level_peringatan'] ?>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge <?= $lap['status'] == 'pending' ? 'full' : ($lap['status'] == 'ditinjau' ? 'cheap' : 'verified') ?>">
+                            <?= ucfirst($lap['status']) ?>
+                        </span>
+                    </td>
+                    <td><?= date('d M Y', strtotime($lap['created_at'])) ?></td>
+                    <td>
+                        <a href="laporan_admin.php?id=<?= $lap['id'] ?>">
+                            <button class="table-btn table-btn-green">Tinjau</button>
+                        </a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -100,15 +130,7 @@ $query_kos   = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos 
     <div class="table-wrapper">
         <table class="admin-table">
             <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>No HP</th>
-                    <th>Terdaftar</th>
-                    <th>Aksi</th>
-                </tr>
+                <tr><th>No</th><th>Nama</th><th>Email</th><th>Role</th><th>No HP</th><th>Terdaftar</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 <?php $no = 1; while($user = mysqli_fetch_assoc($query_users)): ?>
@@ -116,11 +138,7 @@ $query_kos   = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos 
                     <td><?= $no++ ?></td>
                     <td><?= htmlspecialchars($user['nama']) ?></td>
                     <td><?= htmlspecialchars($user['email']) ?></td>
-                    <td>
-                        <span class="badge <?= $user['role'] == 'penyewa' ? 'new' : 'popular' ?>">
-                            <?= ucfirst($user['role']) ?>
-                        </span>
-                    </td>
+                    <td><span class="badge <?= $user['role'] == 'penyewa' ? 'new' : 'popular' ?>"><?= ucfirst($user['role']) ?></span></td>
                     <td><?= $user['no_hp'] ?? '-' ?></td>
                     <td><?= date('d M Y', strtotime($user['created_at'])) ?></td>
                     <td>
@@ -140,16 +158,7 @@ $query_kos   = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM kos 
     <div class="table-wrapper">
         <table class="admin-table">
             <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Kos</th>
-                    <th>Pemilik</th>
-                    <th>Harga</th>
-                    <th>Gender</th>
-                    <th>Status</th>
-                    <th>Verifikasi</th>
-                    <th>Aksi</th>
-                </tr>
+                <tr><th>No</th><th>Nama Kos</th><th>Pemilik</th><th>Harga</th><th>Gender</th><th>Status</th><th>Verifikasi</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 <?php $no = 1; while($kos = mysqli_fetch_assoc($query_kos)): ?>

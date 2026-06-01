@@ -1341,3 +1341,21 @@ body {
 .lapor-actions .btn-report-submit:hover {
     background: #DC2626;
 }
+
+.detail-right-btn-fav-add {
+    background: #157A6E;
+    color: white;
+}
+
+.detail-right-btn-fav-add:hover {
+    background: #12695F;
+}
+
+.detail-right-btn-fav-remove {
+    background: #9CA3AF;
+    color: white;
+}
+
+.detail-right-btn-fav-remove:hover {
+    background: #6B7280;
+}
