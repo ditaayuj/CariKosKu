@@ -148,14 +148,14 @@ $pembelaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT pembelaan_pemilik, f
         </div>
 
         <div class="profil-card">
-            <h3>Pembelaan Pemilik</h3>
+            <h3>Tanggapan Pemilik</h3>
             <?php if($pembelaan && $pembelaan['pembelaan_pemilik']): ?>
                 <p style="color:#374151; font-size:14px; line-height:1.7; margin-bottom:12px;"><?= htmlspecialchars($pembelaan['pembelaan_pemilik']) ?></p>
                 <?php if($pembelaan['foto_pembelaan']): ?>
                     <img src="uploads/<?= $pembelaan['foto_pembelaan'] ?>" style="width:100%; border-radius:12px; cursor:pointer;" onclick="window.open(this.src)" alt="Foto pembelaan">
                 <?php endif; ?>
             <?php else: ?>
-                <p style="color:#9CA3AF; font-size:14px;">Belum ada pembelaan dari pemilik kos.</p>
+                <p style="color:#9CA3AF; font-size:14px;">Belum ada tanggapan dari pemilik kos.</p>
             <?php endif; ?>
 
             <?php if($laporan['tanggapan_admin']): ?>

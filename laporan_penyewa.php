@@ -109,7 +109,7 @@ $query_laporan = mysqli_query($conn, "
 
                     <?php if(!empty($lap['pembelaan_pemilik'])): ?>
                     <div style="background:#EFF6FF;padding:12px;border-radius:10px;margin-bottom:12px;">
-                        <strong>Pembelaan Pemilik</strong>
+                        <strong>Tanggapan Pemilik</strong>
                         <p>
                             <?= nl2br(htmlspecialchars($lap['pembelaan_pemilik'])) ?>
                         </p>

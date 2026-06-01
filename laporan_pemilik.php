@@ -33,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['laporan_id'])){
         mysqli_query($conn, "UPDATE reports SET pembelaan_pemilik='$pembelaan' WHERE id='$laporan_id'");
     }
 
-    $success = "Pembelaan berhasil dikirim ke admin.";
+    $success = "Tanggapan berhasil dikirim ke admin.";
 }
 
 $query_laporan = mysqli_query($conn, "
@@ -135,23 +135,23 @@ mysqli_query($conn, "UPDATE notifikasi SET is_read=1 WHERE user_id='$user_id'");
 
                     <?php if(!$lap['pembelaan_pemilik'] && $lap['status'] != 'selesai'): ?>
                     <details style="margin-top:10px;">
-                        <summary style="cursor:pointer; color:#157A6E; font-weight:600; font-size:14px;">📝 Tulis Pembelaan</summary>
+                        <summary style="cursor:pointer; color:#157A6E; font-weight:600; font-size:14px;">📝 Berikan tanggapan</summary>
                         <form action="" method="POST" enctype="multipart/form-data" style="margin-top:12px;">
                             <input type="hidden" name="laporan_id" value="<?= $lap['id'] ?>">
                             <div class="profil-input-group">
-                                <label>Keterangan Pembelaan</label>
-                                <textarea name="pembelaan" class="ulasan-textarea" rows="3" placeholder="Jelaskan kondisi sebenarnya..." required></textarea>
+                                <label>Tanggapan pemilik</label>
+                                <textarea name="pembelaan" class="ulasan-textarea" rows="3" placeholder="Berikan tanggapan terkait laporan yang diberikan" required></textarea>
                             </div>
                             <div class="profil-input-group">
                                 <label>Foto Pendukung <span class="input-hint">(opsional)</span></label>
                                 <input type="file" name="foto_pembelaan" class="upload-input" accept="image/jpeg,image/png">
                             </div>
-                            <button type="submit" class="profil-btn" style="margin-top:8px;">Kirim Pembelaan</button>
+                            <button type="submit" class="profil-btn" style="margin-top:8px;">Kirim Tanggapan</button>
                         </form>
                     </details>
                     <?php elseif($lap['pembelaan_pemilik']): ?>
                     <div style="background:#EFF6FF; padding:12px; border-radius:10px; border:1px solid #3B82F6;">
-                        <p style="font-size:12px; font-weight:600; color:#1D4ED8; margin-bottom:4px;">Pembelaan Anda:</p>
+                        <p style="font-size:12px; font-weight:600; color:#1D4ED8; margin-bottom:4px;">Tanggapan Anda:</p>
                         <p style="font-size:13px; color:#374151;"><?= htmlspecialchars($lap['pembelaan_pemilik']) ?></p>
                     </div>
                     <?php endif; ?>
