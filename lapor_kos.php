@@ -28,8 +28,36 @@ if(!$kos){
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $alasan     = mysqli_real_escape_string($conn, $_POST['alasan']);
     $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan'] ?? '');
-    mysqli_query($conn, "INSERT INTO reports (reporter_id, kos_id, alasan, created_at) VALUES ('$user_id', '$kos_id', '$alasan', NOW())");
+
+    mysqli_query($conn, "
+        INSERT INTO reports
+        (reporter_id, kos_id, alasan, keterangan, created_at)
+        VALUES
+        ('$user_id', '$kos_id', '$alasan', '$keterangan', NOW())
+    ");
+
+    $report_id = mysqli_insert_id($conn);
+
+    $pesan = mysqli_real_escape_string(
+        $conn,
+        "Ada laporan baru pada kos \"{$kos['nama_kos']}\" yang perlu ditinjau."
+    );
+
+    mysqli_query($conn, "
+        INSERT INTO notifikasi
+        (user_id, kos_id, report_id, pesan, tipe)
+        VALUES
+        (
+            '{$kos['user_id']}',
+            '$kos_id',
+            '$report_id',
+            '$pesan',
+            'info'
+        )
+    ");
+
     $success = "Laporan berhasil dikirim. Tim kami akan meninjau dalam 1x24 jam.";
+}
 }
 ?>
 <!DOCTYPE html>
@@ -48,6 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         <a href="index_penyewa.php">Beranda</a>
         <a href="peta.php">Peta Kos</a>
         <a href="favorit.php">Favorit</a>
+        <a href="laporan_saya.php">Laporan Saya</a>
         <a href="profil_penyewa.php">Profil</a>
         <a href="logout.php">Logout</a>
     </div>
