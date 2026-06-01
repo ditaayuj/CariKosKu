@@ -33,8 +33,32 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['laporan_id'])){
         mysqli_query($conn, "UPDATE reports SET pembelaan_pemilik='$pembelaan' WHERE id='$laporan_id'");
     }
 
+    $laporan = mysqli_fetch_assoc(mysqli_query($conn, "
+        SELECT reporter_id, kos_id
+        FROM reports
+        WHERE id='$laporan_id'
+    "));
+
+    $pesan = mysqli_real_escape_string(
+        $conn,
+        "Pemilik kos telah memberikan tanggapan terhadap laporan Anda."
+    );
+
+    mysqli_query($conn, "
+        INSERT INTO notifikasi
+        (user_id, kos_id, report_id, pesan, tipe)
+        VALUES
+        (
+            '{$laporan['reporter_id']}',
+            '{$laporan['kos_id']}',
+            '$laporan_id',
+            '$pesan',
+            'info'
+        )
+    ");
+
     $success = "Tanggapan berhasil dikirim ke admin.";
-}
+    }
 
 $query_laporan = mysqli_query($conn, "
     SELECT r.*, u.nama AS nama_pelapor, k.nama_kos

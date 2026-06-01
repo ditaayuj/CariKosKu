@@ -50,6 +50,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $pesan = mysqli_real_escape_string($conn, "⚠️ Peringatan Level $level_baru untuk kos \"{$laporan['nama_kos']}\". Harap segera tinjau laporan yang masuk.");
         mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe) VALUES ('{$laporan['pemilik_id']}', '{$laporan['kos_id']}', '$id', '$pesan', '$tipe')");
 
+        $pesan_pelapor = mysqli_real_escape_string($conn, "Laporan Anda sedang ditindaklanjuti admin. Level peringatan kos saat ini menjadi Level $level_baru.");
+
+        mysqli_query($conn, "
+        INSERT INTO notifikasi
+        (user_id, kos_id, report_id, pesan, tipe)
+        VALUES
+            (
+            '{$laporan['reporter_id']}',
+            '{$laporan['kos_id']}',
+            '$id',
+            '$pesan_pelapor',
+            'info'
+            )
+        ");
+        
         $success = "Level peringatan dinaikkan ke Level $level_baru.";
         $laporan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, u.email AS email_pelapor, k.nama_kos, k.user_id AS pemilik_id, pk.nama AS nama_pemilik FROM reports r JOIN users u ON r.reporter_id=u.id JOIN kos k ON r.kos_id=k.id JOIN users pk ON k.user_id=pk.id WHERE r.id='$id'"));
 
@@ -58,7 +73,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         mysqli_query($conn, "UPDATE reports SET status='selesai' WHERE kos_id='{$laporan['kos_id']}'");
 
         $pesan = mysqli_real_escape_string($conn, "Listing kos \"{$laporan['nama_kos']}\" telah dihapus oleh admin karena melanggar ketentuan platform.");
-        mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe) VALUES ('{$laporan['pemilik_id']}', '{$laporan['kos_id']}', '$id', '$pesan', 'peringatan')");
+
+        mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe)
+        VALUES ('{$laporan['pemilik_id']}', '{$laporan['kos_id']}', '$id', '$pesan', 'peringatan')");
+
+        mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe)
+        VALUES ('{$laporan['reporter_id']}', '{$laporan['kos_id']}', '$id', '$pesan', 'selesai')");
 
         header("Location: index_admin.php");
         exit;
