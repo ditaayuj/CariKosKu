@@ -58,7 +58,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $success = "Laporan berhasil dikirim. Tim kami akan meninjau dalam 1x24 jam.";
 }
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
