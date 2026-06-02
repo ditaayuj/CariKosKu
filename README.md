@@ -97,3 +97,39 @@ alasan — VARCHAR(255), alasan laporan
 keterangan — TEXT, keterangan tambahan dari pelapor, nullable
 status — ENUM (pending / ditinjau / selesai), status penanganan laporan
 created_at — DATETIME, waktu laporan dikirim
+
+BUG PROGRAM:
+1. Bug: Rating yang ditampilkan pada detail kos hanya rating yang diberikan oleh user pertama. 
+Gejala: Rating kos menampilkan angka 5 setelah 2 user memberikan rating 5 dan 4
+Langkah reproduksi: Coba login sebagai 2 penyewa yang berbeda, masing-masing penyewa memberikan rating pada kos yang sama, lalu buka halaman detail kos
+Hipotesis penyebab: Query UPDATE rating menggunakan dua langkah terpisah yaitu SELECT AVG ke variabel PHP, lalu UPDATE. Nilai AVG yang dihitung belum tentu menampilkan data terbaru
+Fix: Ganti dua query terpisah menjadi satu UPDATE dengan subquery UPDATE kos SET rating = (SELECT ROUND(AVG(r.rating),2) FROM reviews r WHERE r.kos_id='$id') WHERE id='$id'
+Bukti screenshot:
+- ![Bukti Bug Rating 1](Bukti bug rating1.png)
+- ![Bukti Bug Rating 2](Bukti bug rating2.png)
+- ![Bukti Bug Rating Diperbaiki 2](Bukti bug rating diperbaiki.png)
+
+2. Bug: Laporan yang diberikan oleh penyewa hilang begitu saja, tidak bisa diproses oleh admin atau dilihat oleh pemilik kos
+Gejala: Penyewa sudah submit laporan, tapi di dashboard admin tidak ada tampilan yang memperlihatkan adanya laporan yang masuk. Pada dashboard pemilik juga seperti itu, jadi laporan yang diberikan oleh penyewa tidak bisa ditindak lanjut. Penyewa jadi tidak tahu laporannya ditindak lanjuti atau tidak.
+Langkah reproduksi: Login sebagai penyewa lalu buka detail kos dan klik laporan, isi form laporan dan submit. Buka page pemilik, tidak ada laporan yang muncul. Lalu buka page admin dan di sana tidak ada tampilan laporan masuk.
+Hipotesis penyebab: Sistem hanya menyimpan data laporan ke tabel reports saja tanpa menampilkan data pada dashboard admin dan pemilik. File index_admin.php belum memiliki query untuk mengambil data dari tabel reports. Belum ada page khusus untuk meninjau laporan, belum ada juga mekanisme untuk pemilik kos untuk melihat dan memberikan tanggapan. Belum ada notifikasi untuk menghubungkan proses laporan antara penyewa, pemilik, dan admin.
+Fix: Menambahkan query SELECT reports JOIN users JOIN kos di dashboard admin untuk menampilkan daftar laporan yang masuk, membuat halaman laporan_admin.php untuk proses peninjauan laporan oleh admin, menambahkan halaman laporan_pemilik.php agar pemilik kos dapat melihat dan memberikan tanggapan terhadap laporan yang diterima, menambahkan tabel notifikasi untuk mendukung sistem pemberitahuan, mengimplementasikan pengiriman notifikasi secara otomatis saat laporan dibuat, saat pemilik memberikan tanggapan, dan saat admin memberikan keputusan. Membuat halaman laporan_penyewa.php agar penyewa dapat memantau perkembangan laporan, melihat tanggapan pemilik kos, dan mengetahui hasil keputusan admin.
+Bukti screenshot:
+- ![Bukti Bug Laporan 1](Bukti bug laporan1.png)
+- ![Bukti Bug Laporan 2](Bukti bug laporan2.png)
+- ![Bukti Bug Laporan Diperbaiki 1](Bukti bug laporan diperbaiki1.png)
+- ![Bukti Bug Laporan Diperbaiki 2](Bukti bug laporan diperbaiki2.png)
+- ![Bukti Bug Laporan Diperbaiki 3](Bukti bug laporan diperbaiki3.png)
+
+AI usage statement 
+1) tool: claude.ai dan ChatGPT.ai
+2) untuk apa: logika untuk kode, perkembangan map, brainstorming struktur fitur. Lebih banyak itu biasanya logika kode untuk peta, karena sistem ini butuh peta, bingung biar bisa masukin peta nya bagaimana.
+3) 2-3 promt utama:
+- Saya mau tambahkan peta interaktif di halaman pencarian kos dan di form tambah kos. Pemilik kos bisa klik titik di peta untuk menentukan lokasi kos mereka, dan koordinatnya otomatis terisi ke input. Bagaimana caranya?"
+- "Laporan dari penyewa tersimpan di database tapi gak muncul di dashboard admin dan gak bisa dilihat pemilik kos. Bagaimana cara membuat sistem laporan yang lengkap dengan notifikasi antar pihak?"
+4) bagian output AI yang dipakai:
+- Integrasi Leaflet.js untuk peta interaktif 
+- Struktur dasar file laporan admin dan pemilik yang disesuaikan juga dengan database. 
+5) bagian yang saya ubah + alasan:
+- Koordinat default disesuaikan ke pusat Kota Mataram (-8.5833, 116.1167) AI menggunakan koordinat generik, disesuaikan ke lokasi target pengguna. Karena sistem ini butuh peta interaktif, yang pemiliknya itu gak perlu susah pikir longtitude latitude nya, jadi titik kos bisa langsung diklik dan longtitude latitude bisa otomatis terdeteksi.
+- Bagian laporan admin, pemilik dan juga penyewa. Karena admin harus bisa melihat juga laporan dari penyewa dan mengambil tindakan yang sesuai. Pemilik juga harus melihat untuk dijadikan evaluasi dan memberikan tanggapan
