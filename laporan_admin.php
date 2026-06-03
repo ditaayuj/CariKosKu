@@ -69,19 +69,60 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $laporan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, u.email AS email_pelapor, k.nama_kos, k.user_id AS pemilik_id, pk.nama AS nama_pemilik FROM reports r JOIN users u ON r.reporter_id=u.id JOIN kos k ON r.kos_id=k.id JOIN users pk ON k.user_id=pk.id WHERE r.id='$id'"));
 
     } elseif($aksi == 'hapus_listing'){
-        mysqli_query($conn, "DELETE FROM kos WHERE id='{$laporan['kos_id']}'");
-        mysqli_query($conn, "UPDATE reports SET status='selesai' WHERE kos_id='{$laporan['kos_id']}'");
+        $alasan_hapus = mysqli_real_escape_string(
+        $conn,
+        $_POST['alasan_hapus']
+        );
 
-        $pesan = mysqli_real_escape_string($conn, "Listing kos \"{$laporan['nama_kos']}\" telah dihapus oleh admin karena melanggar ketentuan platform.");
+    mysqli_query($conn, "
+        UPDATE reports
+        SET status='selesai'
+        WHERE kos_id='{$laporan['kos_id']}'
+    ");
 
-        mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe)
-        VALUES ('{$laporan['pemilik_id']}', '{$laporan['kos_id']}', '$id', '$pesan', 'peringatan')");
+    mysqli_query($conn, "
+        DELETE FROM kos
+        WHERE id='{$laporan['kos_id']}'
+    ");
 
-        mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe)
-        VALUES ('{$laporan['reporter_id']}', '{$laporan['kos_id']}', '$id', '$pesan', 'selesai')");
+    $pesan_pemilik = mysqli_real_escape_string(
+        $conn,
+        "Listing kos \"{$laporan['nama_kos']}\" telah dihapus oleh admin. Alasan: $alasan_hapus"
+    );
 
-        header("Location: index_admin.php");
-        exit;
+    mysqli_query($conn, "
+        INSERT INTO notifikasi
+        (user_id, kos_id, report_id, pesan, tipe)
+        VALUES
+        (
+            '{$laporan['pemilik_id']}',
+            '{$laporan['kos_id']}',
+            '$id',
+            '$pesan_pemilik',
+            'peringatan'
+        )
+    ");
+
+    $pesan_pelapor = mysqli_real_escape_string(
+        $conn,
+        "Laporan Anda terbukti valid. Listing kos \"{$laporan['nama_kos']}\" telah dihapus oleh admin."
+    );
+
+    mysqli_query($conn, "
+        INSERT INTO notifikasi
+        (user_id, kos_id, report_id, pesan, tipe)
+        VALUES
+        (
+            '{$laporan['reporter_id']}',
+            '{$laporan['kos_id']}',
+            '$id',
+            '$pesan_pelapor',
+            'selesai'
+        )
+    ");
+
+    header("Location: index_admin.php");
+    exit;
 
     } elseif($aksi == 'tutup_laporan'){
         mysqli_query($conn, "UPDATE reports SET status='selesai' WHERE id='$id'");
@@ -219,6 +260,17 @@ $pembelaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT pembelaan_pemilik, f
                 <?php if($laporan['level_peringatan'] >= 3): ?>
                 <form action="" method="POST">
                     <input type="hidden" name="aksi" value="hapus_listing">
+
+                    <div class="profil-input-group" style="margin-bottom:10px;">
+                        <textarea
+                            name="alasan_hapus"
+                            class="ulasan-textarea"
+                            rows="3"
+                            placeholder="Tuliskan alasan penghapusan listing..."
+                            required
+                        ></textarea>
+                </div>
+
                     <button type="submit" class="profil-btn" style="background:#EF4444;" onclick="return confirm('Yakin hapus listing kos ini? Tindakan ini tidak bisa dibatalkan.')">
                         🗑️ Hapus Listing Kos
                     </button>
@@ -232,9 +284,7 @@ $pembelaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT pembelaan_pemilik, f
                     </button>
                 </form>
 
-                <a href="index_admin.php">
-                    <button class="profil-btn" style="background:#9CA3AF;">← Kembali</button>
-                </a>
+                <a href="index_admin.php" class="profil-btn" style="background:#9CA3AF; text-decoration:none; display:inline-block;">← Kembali</a>
             </div>
 
         </div>
