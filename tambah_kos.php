@@ -26,13 +26,35 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $fasilitas       = mysqli_real_escape_string($conn, $_POST['fasilitas']);
     $jam_malam       = mysqli_real_escape_string($conn, $_POST['jam_malam']);
     $status          = $_POST['status'];
+    $dokumen_kepemilikan = "";
+
+    if(isset($_FILES['dokumen_kepemilikan']) && $_FILES['dokumen_kepemilikan']['error'] == 0){
+
+        $ext = strtolower(pathinfo(
+            $_FILES['dokumen_kepemilikan']['name'],
+            PATHINFO_EXTENSION
+        ));
+
+        $dokumen_kepemilikan =
+            'dokumen_' .
+            time() .
+            '_' .
+            rand(1000,9999) .
+            '.' .
+            $ext;
+
+        move_uploaded_file(
+            $_FILES['dokumen_kepemilikan']['tmp_name'],
+            'uploads/' . $dokumen_kepemilikan
+        );
+}
 
     $lat = !empty($_POST['lat']) ? (float)$_POST['lat'] : null;
     $lng = !empty($_POST['lng']) ? (float)$_POST['lng'] : null;
     $lat_val = $lat !== null ? "'$lat'" : "NULL";
     $lng_val = $lng !== null ? "'$lng'" : "NULL";
 
-    $query = "INSERT INTO kos (user_id, nama_kos, alamat, kampus_terdekat, harga, gender, fasilitas, jam_malam, status, terverifikasi, rating, lat, lng) VALUES ('$user_id', '$nama_kos', '$alamat', '$kampus_terdekat', '$harga', '$gender', '$fasilitas', '$jam_malam', '$status', 0, 0, $lat_val, $lng_val)";
+    $query = "INSERT INTO kos (user_id, nama_kos, alamat, kampus_terdekat, harga, gender, fasilitas, jam_malam, status, dokumen_kepemilikan, terverifikasi, rating, lat, lng) VALUES ('$user_id', '$nama_kos', '$alamat', '$kampus_terdekat', '$harga', '$gender', '$fasilitas', '$jam_malam', '$status', '$dokumen_kepemilikan', 0, 0, $lat_val, $lng_val)";
 
     if(mysqli_query($conn, $query)){
         $kos_id = mysqli_insert_id($conn);
@@ -157,6 +179,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                     <option value="hampir_penuh">Hampir Penuh</option>
                     <option value="penuh">Penuh</option>
                 </select>
+            </div>
+
+            <div class="form-section-title">Verifikasi Kepemilikan</div>
+
+            <div class="input-group">
+                <label>Dokumen Kepemilikan Kos / Identitas Pemilik</label>
+                <input
+                    type="file"
+                    name="dokumen_kepemilikan"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    required
+                >
+                <small style="color:#6B7280;">
+                    Dokumen ini hanya dapat dilihat admin untuk proses verifikasi dan tidak ditampilkan kepada penyewa.
+                </small>
             </div>
 
             <div class="form-section-title">Foto Kos</div>

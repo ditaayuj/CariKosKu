@@ -158,7 +158,7 @@ $query_laporan = mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, k.nama
     <div class="table-wrapper">
         <table class="admin-table">
             <thead>
-                <tr><th>No</th><th>Nama Kos</th><th>Pemilik</th><th>Harga</th><th>Gender</th><th>Status</th><th>Verifikasi</th><th>Aksi</th></tr>
+                <tr><th>No</th><th>Nama Kos</th><th>Pemilik</th><th>Harga</th><th>Gender</th><th>Status</th><th>Dokumen</th><th>Verifikasi</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 <?php $no = 1; while($kos = mysqli_fetch_assoc($query_kos)): ?>
@@ -172,6 +172,15 @@ $query_laporan = mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, k.nama
                         <span class="badge <?= $kos['status'] == 'tersedia' ? 'verified' : ($kos['status'] == 'hampir_penuh' ? 'cheap' : 'full') ?>">
                             <?= ucfirst(str_replace('_', ' ', $kos['status'])) ?>
                         </span>
+                    </td>
+                    <td>
+                        <?php if (!empty($kos['dokumen_kepemilikan'])): ?>
+                            <a href="uploads/<?= $kos['dokumen_kepemilikan'] ?>" target="_blank">
+                                <button class="table-btn">Lihat Dokumen</button>
+                            </a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
                     </td>
                     <td>
                         <?php if($kos['terverifikasi'] == 1): ?>
