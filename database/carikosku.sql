@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 21, 2026 at 04:35 AM
+-- Generation Time: Jun 03, 2026 at 01:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,13 @@ CREATE TABLE `favorites` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `favorites`
+--
+
+INSERT INTO `favorites` (`id`, `user_id`, `kos_id`, `created_at`) VALUES
+(1, 7, 1, '2026-05-24 11:10:45');
+
 -- --------------------------------------------------------
 
 --
@@ -53,6 +60,8 @@ CREATE TABLE `kos` (
   `jam_malam` varchar(10) DEFAULT NULL,
   `rating` float DEFAULT 0,
   `terverifikasi` tinyint(1) DEFAULT 0,
+  `Foto_KTP` varchar(255) DEFAULT NULL,
+  `Dokumen_kepemilikan` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `lat` decimal(10,8) DEFAULT NULL,
   `lng` decimal(11,8) DEFAULT NULL
@@ -62,8 +71,8 @@ CREATE TABLE `kos` (
 -- Dumping data for table `kos`
 --
 
-INSERT INTO `kos` (`id`, `user_id`, `nama_kos`, `alamat`, `kampus_terdekat`, `harga`, `gender`, `status`, `fasilitas`, `jam_malam`, `rating`, `terverifikasi`, `created_at`, `lat`, `lng`) VALUES
-(1, 5, 'Kos Ayu', '111 Victoria St, Toronto, ON M5C 2M6, Canada', 'Universitas Mataram (UNRAM)', 1, 'putri', 'tersedia', 'WiFi, AC, Kulkas, Mesin cuci, dapur pribadi, kamar mandi pribadi', '', 0, 1, '2026-05-16 02:49:19', NULL, NULL);
+INSERT INTO `kos` (`id`, `user_id`, `nama_kos`, `alamat`, `kampus_terdekat`, `harga`, `gender`, `status`, `fasilitas`, `jam_malam`, `rating`, `terverifikasi`, `Foto_KTP`, `Dokumen_kepemilikan`, `created_at`, `lat`, `lng`) VALUES
+(1, 5, 'Kos Ayu', '111 Victoria St, Toronto, ON M5C 2M6, Canada', 'Universitas Mataram (UNRAM)', 1000000, 'putri', 'tersedia', 'WiFi, AC, Kulkas, Mesin cuci, dapur pribadi, kamar mandi pribadi', '', 0, 1, NULL, NULL, '2026-05-16 02:49:19', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -82,6 +91,23 @@ CREATE TABLE `kos_foto` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notifikasi`
+--
+
+CREATE TABLE `notifikasi` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `kos_id` int(11) DEFAULT NULL,
+  `report_id` int(11) DEFAULT NULL,
+  `pesan` text NOT NULL,
+  `tipe` enum('peringatan','info','selesai') DEFAULT 'info',
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reports`
 --
 
@@ -92,7 +118,11 @@ CREATE TABLE `reports` (
   `alasan` varchar(255) NOT NULL,
   `keterangan` text DEFAULT NULL,
   `status` enum('pending','ditinjau','selesai') DEFAULT 'pending',
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  `level_peringatan` int(11) DEFAULT 0,
+  `tanggapan_admin` text DEFAULT NULL,
+  `pembelaan_pemilik` text DEFAULT NULL,
+  `foto_pembelaan` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -163,6 +193,12 @@ ALTER TABLE `kos_foto`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `notifikasi`
+--
+ALTER TABLE `notifikasi`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `reports`
 --
 ALTER TABLE `reports`
@@ -190,7 +226,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `kos`
@@ -202,6 +238,12 @@ ALTER TABLE `kos`
 -- AUTO_INCREMENT for table `kos_foto`
 --
 ALTER TABLE `kos_foto`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notifikasi`
+--
+ALTER TABLE `notifikasi`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
