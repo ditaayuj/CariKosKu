@@ -15,6 +15,7 @@ require "koneksi.php";
 
 $user_id = $_SESSION['id'];
 $error   = "";
+$user_nohp = mysqli_fetch_row(mysqli_query($conn, "SELECT no_hp FROM users WHERE id='$user_id'"))[0] ?? '';
 $success = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -26,9 +27,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $fasilitas       = mysqli_real_escape_string($conn, $_POST['fasilitas']);
     $jam_malam       = mysqli_real_escape_string($conn, $_POST['jam_malam']);
     $status          = $_POST['status'];
+    $no_hp_kos       = mysqli_real_escape_string($conn, trim($_POST['no_hp_kos'] ?? ''));
+
+    if(empty($no_hp_kos)){
+        $error = "Nomor HP / WhatsApp wajib diisi agar penyewa bisa menghubungi Anda.";
+    } else {
+        mysqli_query($conn, "UPDATE users SET no_hp='$no_hp_kos' WHERE id='$user_id'");
+    }
     $dokumen_kepemilikan = "";
 
-    if(isset($_FILES['dokumen_kepemilikan']) && $_FILES['dokumen_kepemilikan']['error'] == 0){
+    if(empty($error) && isset($_FILES['dokumen_kepemilikan']) && $_FILES['dokumen_kepemilikan']['error'] == 0){
 
         $ext = strtolower(pathinfo(
             $_FILES['dokumen_kepemilikan']['name'],
@@ -54,6 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $lat_val = $lat !== null ? "'$lat'" : "NULL";
     $lng_val = $lng !== null ? "'$lng'" : "NULL";
 
+    if(empty($error)){
     $query = "INSERT INTO kos (user_id, nama_kos, alamat, kampus_terdekat, harga, gender, fasilitas, jam_malam, status, dokumen_kepemilikan, terverifikasi, rating, lat, lng) VALUES ('$user_id', '$nama_kos', '$alamat', '$kampus_terdekat', '$harga', '$gender', '$fasilitas', '$jam_malam', '$status', '$dokumen_kepemilikan', 0, 0, $lat_val, $lng_val)";
 
     if(mysqli_query($conn, $query)){
@@ -79,6 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     } else {
         $error = "Gagal menambahkan kos. Coba lagi.";
     }
+    } // end if empty error
 }
 ?>
 <!DOCTYPE html>
@@ -181,6 +191,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 </select>
             </div>
 
+            <div class="form-section-title">Kontak yang Bisa Dihubungi</div>
+
+            <div class="input-group">
+                <label>Nomor HP / WhatsApp <span style="color:#EF4444;">*</span></label>
+                <input type="text" name="no_hp_kos" id="no_hp_kos"
+                    value="<?= htmlspecialchars($user_nohp) ?>"
+                    placeholder="Contoh: 08123456789"
+                    required>
+                <small style="color:#6B7280;">Nomor ini akan ditampilkan ke penyewa sebagai kontak kos Anda.</small>
+            </div>
+
             <div class="form-section-title">Verifikasi Kepemilikan</div>
 
             <div class="input-group">
@@ -281,6 +302,10 @@ document.getElementById('formTambahKos').addEventListener('submit', function(e){
     if(isNaN(harga) || harga <= 0){ e.preventDefault(); alert('Harga harus lebih dari 0.'); return; }
     if(gender === ''){ e.preventDefault(); alert('Pilih gender kos.'); return; }
     if(fasilitas.length < 3){ e.preventDefault(); alert('Fasilitas tidak boleh kosong.'); return; }
+    var no_hp = document.getElementById('no_hp_kos').value.trim();
+    if(no_hp === ''){ e.preventDefault(); alert('Nomor HP / WhatsApp wajib diisi.'); return; }
+    var hpRegex = /^[0-9+\-\s]{8,15}$/;
+    if(!hpRegex.test(no_hp)){ e.preventDefault(); alert('Format nomor HP tidak valid.'); return; }
 });
 </script>
 

@@ -216,12 +216,21 @@ while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
                 <p class="kontak-nama"><?= htmlspecialchars($kos['nama_pemilik']) ?></p>
                 <p class="kontak-role">Pemilik Kos</p>
                 <?php if($kos['hp_pemilik']): ?>
-                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $kos['hp_pemilik']) ?>" target="_blank">
-                        <button class="btn">💬 Hubungi via WhatsApp</button>
-                    </a>
-                    <p class="kontak-hp">📞 <?= htmlspecialchars($kos['hp_pemilik']) ?></p>
+                    <div style="background:#F0FDF4;border:1px solid #22C55E;border-radius:12px;padding:14px;margin:12px 0;text-align:center;">
+                        <p style="font-size:13px;color:#15803D;font-weight:600;margin-bottom:4px;">📞 Nomor Kontak</p>
+                        <p style="font-size:16px;font-weight:700;color:#1F2937;margin-bottom:12px;"><?= htmlspecialchars($kos['hp_pemilik']) ?></p>
+                        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $kos['hp_pemilik']) ?>" target="_blank" style="display:block;">
+                            <button class="btn" style="width:100%;background:#22C55E;">💬 Chat via WhatsApp</button>
+                        </a>
+                        <a href="tel:<?= preg_replace('/[^0-9+]/', '', $kos['hp_pemilik']) ?>" style="display:block;margin-top:8px;">
+                            <button class="btn btn-gray" style="width:100%;">📞 Telepon Langsung</button>
+                        </a>
+                    </div>
                 <?php else: ?>
-                    <p class="kontak-empty">Kontak tidak tersedia</p>
+                    <div style="background:#FEF2F2;border:1px solid #EF4444;border-radius:12px;padding:14px;text-align:center;margin:12px 0;">
+                        <p style="color:#EF4444;font-size:13px;font-weight:600;margin-bottom:4px;">⚠️ Kontak Belum Tersedia</p>
+                        <p style="color:#6B7280;font-size:12px;">Pemilik belum mengisi nomor HP. Coba hubungi lewat laporan atau cari kos lain.</p>
+                    </div>
                 <?php endif; ?>
             </div>
 
