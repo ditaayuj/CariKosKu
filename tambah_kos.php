@@ -194,7 +194,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             <div class="form-section-title">Kontak yang Bisa Dihubungi</div>
 
             <div class="input-group">
-                <label>Nomor HP / WhatsApp <span style="color:#EF4444;">*</span></label>
+                <label>Nomor HP / WhatsApp</label>
                 <input type="text" name="no_hp_kos" id="no_hp_kos"
                     value="<?= htmlspecialchars($user_nohp) ?>"
                     placeholder="Contoh: 08123456789"
