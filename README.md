@@ -4,7 +4,7 @@ Team role:
 - Dita Ayu Julita: Frontend Developer (Desain UI/UX, HTML, CSS, responsive layout, halaman login, register, dashboard)
 - Fadila Rosidatul A'la: Database Administrator (Desain skema database, konfigurasi MySQL, spesifikasi tabel & relasi)
 - Muhammad Zia Ul Haq: Backend Developer (Logic PHP, autentikasi, session management, routing antar halaman)
-Site map: ![Sitemap CariKos.Ku](sitemap_carikosku.jpg)
+Site map: ![Sitemap CariKos.Ku](sitemap_carikosku.png)
 Aktor dan Fitur:
 1. Penyewa 
 - Register dan login akun
@@ -15,6 +15,7 @@ Aktor dan Fitur:
 - Melaporkan kos yang mencurigakan atau yang tidak sesuai dengan keterangan yang diberikan
 - Melihat peta interaktif yang dapat menampilkan titik titik kos yang terdaftar
 - Mengedit profile dan mengganti password
+- Logout
 2. Pemilik kos
 - Register dan login akun
 - Menambah listing kos baru (nama, alamat, lokasi, harga, dan keterangan lainnya)
@@ -22,12 +23,14 @@ Aktor dan Fitur:
 - Hapus listing kos
 - Lihat status verifikasi listing
 - Mengedit profile dan mengganti password
+- Melihat laporan kos yang masuk dan menanggapi, juga dapat melihat tanggapan admin
 3. Admin
 - Login dengan akun khusus
 - Verifikasi listing kos yang diunggah pemilik
 - Hapus listing kos yang melanggar ketentuan
 - Hapus akun pengguna
 - Pantau statistik platform (total pengguna, penyewa, pemilik, kos, terverifikasi, belum verifikasi)
+- Melihat laporan yang masuk dari penyewa, melihat tanggapan pemilik, dan memberikan tanggapan serta keputusan
 Tech Stack:
 - Frontend: HTML, CSS, JavaScript
 - Backend: PHP
@@ -46,26 +49,27 @@ id — INT, Primary Key, Auto Increment
 nama — VARCHAR(100), nama lengkap pengguna
 email — VARCHAR(100), Unique, email untuk login
 password — VARCHAR(255), password terenkripsi MD5
-role — ENUM (penyewa / pemilik / admin)
-no_hp — VARCHAR(20), nomor HP/WhatsApp
-created_at — DATETIME, waktu registrasi
+role — ENUM (penyewa / pemilik)
+no_hp — DEFAULT NULL, nomor HP/WhatsApp
+created_at — TIMESTAMP, waktu registrasi
 2. Tabel kos
 Menyimpan data listing kos yang didaftarkan oleh pemilik kos.
 id — INT, Primary Key, Auto Increment
 user_id — INT, Foreign Key ke tabel users
-nama_kos — VARCHAR(150), nama kos
+nama_kos — VARCHAR(100), nama kos
 alamat — TEXT, alamat lengkap kos
 kampus_terdekat — VARCHAR(100), lokasi atau kampus terdekat
 harga — INT, harga sewa per bulan dalam rupiah
 gender — ENUM (putra / putri / campur)
 fasilitas — TEXT, daftar fasilitas yang tersedia
-jam_malam — VARCHAR(20), jam malam kos, nullable
+jam_malam — VARCHAR(10), jam malam kos, nullable
 status — ENUM (tersedia / hampir_penuh / penuh)
 terverifikasi — TINYINT(1), 0 = belum terverifikasi, 1 = terverifikasi
-rating — DECIMAL(3,1), rata-rata rating dari ulasan
+rating — float DEFAULT 0, rata-rata rating dari ulasan
 lat — DECIMAL(10,8), koordinat latitude untuk peta
 lng — DECIMAL(11,8), koordinat longitude untuk peta
-created_at — DATETIME, waktu listing ditambahkan
+created_at — TIMESTAMP, waktu listing ditambahkan
+Dokumen_kepemilikan (255)
 3. Tabel kos_foto
 Menyimpan foto-foto kos yang diupload oleh pemilik kos.
 id — INT, Primary Key, Auto Increment
@@ -97,6 +101,20 @@ alasan — VARCHAR(255), alasan laporan
 keterangan — TEXT, keterangan tambahan dari pelapor, nullable
 status — ENUM (pending / ditinjau / selesai), status penanganan laporan
 created_at — DATETIME, waktu laporan dikirim
+level_peringatan - int(11)
+tanggapan_admin text
+tanggapan_pemilik text
+foto_tanggapan varchar(255) 
+7. Tabel notifikasi
+Menyimpan data notifikasi yang dikirim oleh sistem kepada pengguna terkait aktivitas pada platform, seperti status verifikasi kos, pembaruan laporan.
+id - int(11), Auto_increment
+user_id - int(11)
+kos_id - int(11)
+report_id - int(11)
+pesan - text
+tipe - enum ('peringatan', 'info', 'selesai')
+is_read - tinyint(1)
+created_at - DATETIME
 
 BUG PROGRAM:
 1. Bug: Rating yang ditampilkan pada detail kos hanya rating yang diberikan oleh user pertama. 
