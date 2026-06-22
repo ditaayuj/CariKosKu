@@ -54,14 +54,13 @@ $query_fav = mysqli_query($conn, "SELECT k.*, u.nama AS nama_pemilik FROM favori
 </div>
 
 <div class="favorit-header">
-    <h2>❤️ Kos Favorit Saya</h2>
+    <h2>Kos Favorit Saya</h2>
     <p>Kos yang sudah kamu simpan untuk dibandingkan.</p>
 </div>
 
 <div class="listing-container">
 <?php if(mysqli_num_rows($query_fav) == 0): ?>
     <div class="empty-state">
-        <div class="empty-icon">❤️</div>
         <h3>Belum Ada Favorit</h3>
         <p>Simpan kos yang kamu suka dari halaman pencarian.</p>
         <a href="index_penyewa.php"><button class="btn-tambah">Cari Kos</button></a>

@@ -123,19 +123,19 @@ while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
 
             <div class="detail-info-grid">
                 <div class="detail-info-item">
-                    <div class="detail-info-label">📍 Alamat</div>
+                    <div class="detail-info-label">Alamat</div>
                     <div class="detail-info-value"><?= htmlspecialchars($kos['alamat']) ?></div>
                 </div>
                 <div class="detail-info-item">
-                    <div class="detail-info-label">🏫 Dekat Lokasi</div>
+                    <div class="detail-info-label">Dekat Lokasi</div>
                     <div class="detail-info-value"><?= htmlspecialchars($kos['kampus_terdekat']) ?></div>
                 </div>
                 <div class="detail-info-item">
-                    <div class="detail-info-label">🛏 Fasilitas</div>
+                    <div class="detail-info-label">Fasilitas</div>
                     <div class="detail-info-value"><?= htmlspecialchars($kos['fasilitas']) ?></div>
                 </div>
                 <div class="detail-info-item">
-                    <div class="detail-info-label">🕒 Jam Malam</div>
+                    <div class="detail-info-label">Jam Malam</div>
                     <div class="detail-info-value"><?= $kos['jam_malam'] ? htmlspecialchars($kos['jam_malam']) : 'Bebas jam malam' ?></div>
                 </div>
                 <div class="detail-info-item">
@@ -150,7 +150,7 @@ while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
 
             <?php if($kos['lat'] && $kos['lng']): ?>
             <div class="map-container">
-                <h3 class="map-title">📍 Lokasi Kos</h3>
+                <h3 class="map-title">Lokasi Kos</h3>
                 <div id="map-detail" class="map-detail"></div>
             </div>
             <?php endif; ?>
@@ -212,23 +212,22 @@ while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
 
             <div class="kontak-card">
                 <h3 class="kontak-title">Kontak Pemilik</h3>
-                <div class="kontak-icon">🏠</div>
                 <p class="kontak-nama"><?= htmlspecialchars($kos['nama_pemilik']) ?></p>
                 <p class="kontak-role">Pemilik Kos</p>
                 <?php if($kos['hp_pemilik']): ?>
                     <div style="background:#F0FDF4;border:1px solid #22C55E;border-radius:12px;padding:14px;margin:12px 0;text-align:center;">
-                        <p style="font-size:13px;color:#15803D;font-weight:600;margin-bottom:4px;">📞 Nomor Kontak</p>
+                        <p style="font-size:13px;color:#15803D;font-weight:600;margin-bottom:4px;">Nomor Kontak</p>
                         <p style="font-size:16px;font-weight:700;color:#1F2937;margin-bottom:12px;"><?= htmlspecialchars($kos['hp_pemilik']) ?></p>
                         <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $kos['hp_pemilik']) ?>" target="_blank" style="display:block;">
-                            <button class="btn" style="width:100%;background:#22C55E;">💬 Chat via WhatsApp</button>
+                            <button class="btn" style="width:100%;background:#22C55E;">Chat via WhatsApp</button>
                         </a>
                         <a href="tel:<?= preg_replace('/[^0-9+]/', '', $kos['hp_pemilik']) ?>" style="display:block;margin-top:8px;">
-                            <button class="btn btn-gray" style="width:100%;">📞 Telepon Langsung</button>
+                            <button class="btn btn-gray" style="width:100%;">Telepon Langsung</button>
                         </a>
                     </div>
                 <?php else: ?>
                     <div style="background:#FEF2F2;border:1px solid #EF4444;border-radius:12px;padding:14px;text-align:center;margin:12px 0;">
-                        <p style="color:#EF4444;font-size:13px;font-weight:600;margin-bottom:4px;">⚠️ Kontak Belum Tersedia</p>
+                        <p style="color:#EF4444;font-size:13px;font-weight:600;margin-bottom:4px;">Kontak Belum Tersedia</p>
                         <p style="color:#6B7280;font-size:12px;">Pemilik belum mengisi nomor HP. Coba hubungi lewat laporan atau cari kos lain.</p>
                     </div>
                 <?php endif; ?>
@@ -236,12 +235,12 @@ while($f = mysqli_fetch_assoc($foto_list)) $foto_arr[] = $f;
 
             <a href="favorit.php?aksi=<?= $is_fav ? 'hapus' : 'tambah' ?>&kos_id=<?= $id ?>&redirect=detail_kos.php?id=<?= $id ?>">
                 <button class="detail-right-btn <?= $is_fav ? 'detail-right-btn-fav-remove' : 'detail-right-btn-fav-add' ?>">
-                    <?= $is_fav ? '💔 Hapus dari Favorit' : '❤️ Simpan ke Favorit' ?>
+                    <?= $is_fav ? 'Hapus dari Favorit' : 'Simpan ke Favorit' ?>
                 </button>
             </a>
 
             <a href="lapor_kos.php?id=<?= $kos['id'] ?>">
-                <button class="detail-right-btn detail-right-btn-lapor">🚩 Laporkan Kos Ini</button>
+                <button class="detail-right-btn detail-right-btn-lapor">Laporkan Kos Ini</button>
             </a>
 
             <a href="index_penyewa.php">
