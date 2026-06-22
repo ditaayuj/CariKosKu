@@ -8,7 +8,7 @@ if(!isset($_SESSION['role'])){
 
 require "koneksi.php";
 
-$id   = $_GET['id'];
+$id   = (int)$_GET['id'];
 $role = $_SESSION['role'];
 
 if($role == 'pemilik'){

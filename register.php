@@ -5,10 +5,10 @@ $error = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-    $nama     = $_POST['nama'];
-    $email    = $_POST['email'];
-    $password = md5($_POST['password']);
-    $role     = $_POST['role'];
+    $nama     = mysqli_real_escape_string($conn, $_POST['nama']);
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $role     = in_array($_POST['role'], ['penyewa', 'pemilik']) ? $_POST['role'] : 'penyewa';
 
     $cek = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
 

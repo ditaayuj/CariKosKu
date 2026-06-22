@@ -150,7 +150,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 </select>
             </div>
 
-            <div class="form-section-title">Lokasi di Peta (Opsional)</div>
+            <div class="form-section-title">Lokasi di Peta</div>
 
             <p class="map-hint">Klik pada peta untuk menentukan lokasi kos. Geser marker untuk menyesuaikan posisi.</p>
             <div id="map-picker" class="map-picker"></div>

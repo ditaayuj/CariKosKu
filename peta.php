@@ -24,16 +24,16 @@ $kos_json = [];
 while($k = mysqli_fetch_assoc($kos_list)){
     $kos_json[] = [
         'id'      => $k['id'],
-        'nama'    => $k['nama_kos'],
-        'alamat'  => $k['alamat'],
-        'kampus'  => $k['kampus_terdekat'],
+        'nama'    => htmlspecialchars($k['nama_kos'], ENT_QUOTES),
+        'alamat'  => htmlspecialchars($k['alamat'], ENT_QUOTES),
+        'kampus'  => htmlspecialchars($k['kampus_terdekat'], ENT_QUOTES),
         'harga'   => number_format($k['harga'], 0, ',', '.'),
         'gender'  => ucfirst($k['gender']),
         'status'  => $k['status'],
         'rating'  => $k['rating'],
         'lat'     => (float)$k['lat'],
         'lng'     => (float)$k['lng'],
-        'pemilik' => $k['nama_pemilik'],
+        'pemilik' => htmlspecialchars($k['nama_pemilik'], ENT_QUOTES),
     ];
 }
 

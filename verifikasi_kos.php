@@ -13,7 +13,7 @@ if($_SESSION['role'] != 'admin'){
 
 require "koneksi.php";
 
-$id = $_GET['id'];
+$id = (int)$_GET['id'];
 
 mysqli_query($conn, "UPDATE kos SET terverifikasi=1 WHERE id='$id'");
 

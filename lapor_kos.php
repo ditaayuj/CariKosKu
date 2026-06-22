@@ -75,7 +75,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         <a href="index_penyewa.php">Beranda</a>
         <a href="peta.php">Peta Kos</a>
         <a href="favorit.php">Favorit</a>
-        <a href="laporan_saya.php">Laporan Saya</a>
+        <a href="laporan_penyewa.php">Laporan Saya</a>
         <a href="profil_penyewa.php">Profil</a>
         <a href="logout.php">Logout</a>
     </div>

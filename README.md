@@ -141,7 +141,7 @@ Bukti screenshot:
 
 AI usage statement 
 1) tool: claude.ai dan ChatGPT.ai
-2) untuk apa: logika untuk kode, perkembangan map, brainstorming struktur fitur. Lebih banyak itu biasanya logika kode untuk peta, karena sistem ini butuh peta, bingung biar bisa masukin peta nya bagaimana.
+2) untuk apa: logika untuk kode, perkembangan map, brainstorming struktur fitur, emoji-emoji tambahan. Lebih banyak itu biasanya logika kode untuk peta, karena sistem ini butuh peta, bingung biar bisa masukin peta nya bagaimana.
 3) 2-3 promt utama:
 - Saya mau tambahkan peta interaktif di halaman pencarian kos dan di form tambah kos. Pemilik kos bisa klik titik di peta untuk menentukan lokasi kos mereka, dan koordinatnya otomatis terisi ke input. Bagaimana caranya?"
 - "Laporan dari penyewa tersimpan di database tapi gak muncul di dashboard admin dan gak bisa dilihat pemilik kos. Bagaimana cara membuat sistem laporan yang lengkap dengan notifikasi antar pihak?"

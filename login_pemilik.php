@@ -5,18 +5,22 @@ require "koneksi.php";
 $error = "";
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $email    = $_POST['email'];
-    $password = md5($_POST['password']);
-    $query    = "SELECT * FROM users WHERE email='$email' AND password='$password' AND role='pemilik'";
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = $_POST['password'];
+    $query    = "SELECT * FROM users WHERE email='$email' AND role='pemilik'";
     $result   = mysqli_query($conn, $query);
 
     if(mysqli_num_rows($result) == 1){
         $user = mysqli_fetch_assoc($result);
-        $_SESSION['id']   = $user['id'];
-        $_SESSION['nama'] = $user['nama'];
-        $_SESSION['role'] = $user['role'];
-        header("Location: index_pemilik.php");
-        exit;
+        if(password_verify($password, $user['password'])){
+            $_SESSION['id']   = $user['id'];
+            $_SESSION['nama'] = $user['nama'];
+            $_SESSION['role'] = $user['role'];
+            header("Location: index_pemilik.php");
+            exit;
+        } else {
+            $error = "Email atau password salah!";
+        }
     } else {
         $error = "Email atau password salah!";
     }

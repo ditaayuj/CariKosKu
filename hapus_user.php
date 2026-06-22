@@ -13,7 +13,7 @@ if($_SESSION['role'] != 'admin'){
 
 require "koneksi.php";
 
-$id = $_GET['id'];
+$id = (int)$_GET['id'];
 
 mysqli_query($conn, "DELETE FROM kos WHERE user_id='$id'");
 mysqli_query($conn, "DELETE FROM users WHERE id='$id'");
