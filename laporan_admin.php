@@ -39,7 +39,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe) VALUES ('{$laporan['pemilik_id']}', '{$laporan['kos_id']}', '$id', '$pesan_notif', 'info')");
         mysqli_query($conn, "INSERT INTO notifikasi (user_id, kos_id, report_id, pesan, tipe) VALUES ('{$laporan['reporter_id']}', '{$laporan['kos_id']}', '$id', '$pesan_notif', 'info')");
 
-        $success = "Tanggapan berhasil dikirim ke pemilik dan pelapor.";
+        $success = "Tanggapan berhasil dikirim.";
         $laporan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT r.*, u.nama AS nama_pelapor, u.email AS email_pelapor, k.nama_kos, k.user_id AS pemilik_id, pk.nama AS nama_pemilik FROM reports r JOIN users u ON r.reporter_id=u.id JOIN kos k ON r.kos_id=k.id JOIN users pk ON k.user_id=pk.id WHERE r.id='$id'"));
 
     } elseif($aksi == 'naikkan_level'){
@@ -135,7 +135,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     }
 }
 
-$pembelaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT pembelaan_pemilik, foto_pembelaan FROM reports WHERE id='$id'"));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -210,10 +209,10 @@ $pembelaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT pembelaan_pemilik, f
 
         <div class="profil-card">
             <h3>Tanggapan Pemilik</h3>
-            <?php if($pembelaan && $pembelaan['pembelaan_pemilik']): ?>
-                <p style="color:#374151; font-size:14px; line-height:1.7; margin-bottom:12px;"><?= htmlspecialchars($pembelaan['pembelaan_pemilik']) ?></p>
-                <?php if($pembelaan['foto_pembelaan']): ?>
-                    <img src="uploads/<?= $pembelaan['foto_pembelaan'] ?>" style="width:100%; border-radius:12px; cursor:pointer;" onclick="window.open(this.src)" alt="Foto pembelaan">
+            <?php if($laporan['tanggapan_pemilik']): ?>
+                <p style="color:#374151; font-size:14px; line-height:1.7; margin-bottom:12px;"><?= htmlspecialchars($laporan['tanggapan_pemilik']) ?></p>
+                <?php if($laporan['foto_tanggapan']): ?>
+                    <img src="uploads/<?= $laporan['foto_tanggapan'] ?>" style="width:100%; border-radius:12px; cursor:pointer;" onclick="window.open(this.src)" alt="Foto tanggapan">
                 <?php endif; ?>
             <?php else: ?>
                 <p style="color:#9CA3AF; font-size:14px;">Belum ada tanggapan dari pemilik kos.</p>

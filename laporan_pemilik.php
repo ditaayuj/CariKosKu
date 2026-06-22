@@ -28,9 +28,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['laporan_id'])){
     }
 
     if($foto_bela){
-        mysqli_query($conn, "UPDATE reports SET pembelaan_pemilik='$pembelaan', foto_pembelaan='$foto_bela' WHERE id='$laporan_id'");
+        mysqli_query($conn, "UPDATE reports SET tanggapan_pemilik='$pembelaan', foto_tanggapan='$foto_bela' WHERE id='$laporan_id'");
     } else {
-        mysqli_query($conn, "UPDATE reports SET pembelaan_pemilik='$pembelaan' WHERE id='$laporan_id'");
+        mysqli_query($conn, "UPDATE reports SET tanggapan_pemilik='$pembelaan' WHERE id='$laporan_id'");
     }
 
     $laporan = mysqli_fetch_assoc(mysqli_query($conn, "
@@ -157,7 +157,7 @@ mysqli_query($conn, "UPDATE notifikasi SET is_read=1 WHERE user_id='$user_id'");
                     </div>
                     <?php endif; ?>
 
-                    <?php if(!$lap['pembelaan_pemilik'] && $lap['status'] != 'selesai'): ?>
+                    <?php if(!$lap['tanggapan_pemilik'] && $lap['status'] != 'selesai'): ?>
                     <details style="margin-top:10px;">
                         <summary style="cursor:pointer; color:#157A6E; font-weight:600; font-size:14px;">📝 Berikan tanggapan</summary>
                         <form action="" method="POST" enctype="multipart/form-data" style="margin-top:12px;">
@@ -173,10 +173,10 @@ mysqli_query($conn, "UPDATE notifikasi SET is_read=1 WHERE user_id='$user_id'");
                             <button type="submit" class="profil-btn" style="margin-top:8px;">Kirim Tanggapan</button>
                         </form>
                     </details>
-                    <?php elseif($lap['pembelaan_pemilik']): ?>
+                    <?php elseif($lap['tanggapan_pemilik']): ?>
                     <div style="background:#EFF6FF; padding:12px; border-radius:10px; border:1px solid #3B82F6;">
                         <p style="font-size:12px; font-weight:600; color:#1D4ED8; margin-bottom:4px;">Tanggapan Anda:</p>
-                        <p style="font-size:13px; color:#374151;"><?= htmlspecialchars($lap['pembelaan_pemilik']) ?></p>
+                        <p style="font-size:13px; color:#374151;"><?= htmlspecialchars($lap['tanggapan_pemilik']) ?></p>
                     </div>
                     <?php endif; ?>
 

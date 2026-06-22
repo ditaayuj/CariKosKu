@@ -151,16 +151,16 @@ $query_laporan = mysqli_query($conn, "
                     </div>
                     <?php endif; ?>
 
-                    <?php if(!empty($lap['pembelaan_pemilik'])): ?>
+                    <?php if(!empty($lap['tanggapan_pemilik'])): ?>
                     <div style="background:#EFF6FF;padding:12px;border-radius:10px;margin-bottom:12px;">
                         <strong>Tanggapan Pemilik</strong>
                         <p>
-                            <?= nl2br(htmlspecialchars($lap['pembelaan_pemilik'])) ?>
+                            <?= nl2br(htmlspecialchars($lap['tanggapan_pemilik'])) ?>
                         </p>
 
-                        <?php if(!empty($lap['foto_pembelaan'])): ?>
+                        <?php if(!empty($lap['foto_tanggapan'])): ?>
                             <img
-                                src="uploads/<?= htmlspecialchars($lap['foto_pembelaan']) ?>"
+                                src="uploads/<?= htmlspecialchars($lap['foto_tanggapan']) ?>"
                                 style="max-width:250px;margin-top:10px;border-radius:10px;"
                             >
                         <?php endif; ?>
