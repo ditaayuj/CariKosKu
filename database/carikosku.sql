@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 22, 2026 at 01:38 AM
+-- Generation Time: Jun 24, 2026 at 03:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -64,7 +64,8 @@ CREATE TABLE `kos` (
 --
 
 INSERT INTO `kos` (`id`, `user_id`, `nama_kos`, `alamat`, `kampus_terdekat`, `harga`, `gender`, `status`, `fasilitas`, `jam_malam`, `rating`, `terverifikasi`, `dokumen_kepemilikan`, `created_at`, `lat`, `lng`) VALUES
-(4, 10, 'Kos NCT', 'Jl. Pelor Mas Raya No.II, Kekalik Jaya, Kec. Sekarbela, Kota Mataram', 'Universitas Teknologi Mataram', 700000, 'putra', 'tersedia', 'WiFi, dapur pribadi, kamar mandi pribadi', '', 0, 1, 'dokumen_1780733036_5127.jpg', '2026-06-06 08:03:56', -8.59262170, 116.09257830);
+(8, 13, 'Kos Jen', 'Jl. Pemuda, Dasan Agung Baru, Kec. Selaparang, Kota Mataram', 'UNDIKMA', 600000, 'putri', 'tersedia', 'WiFi, AC, Kulkas, Mesin cuci, dapur pribadi, kamar mandi pribadi', '22.00', 5, 1, 'dokumen_1782157496_3080.jpg', '2026-06-22 19:44:56', -8.58249940, 116.08976480),
+(9, 13, 'Kos Merdeka', 'Kekalik jaya', 'Universitas Mataram (UNRAM)', 700000, 'putra', 'penuh', 'WiFi, dapur pribadi, kamar mandi pribadi', '', 0, 1, 'dokumen_1782157635_1213.jpg', '2026-06-22 19:47:15', -8.58987230, 116.09053730);
 
 -- --------------------------------------------------------
 
@@ -94,7 +95,10 @@ INSERT INTO `kos_foto` (`id`, `kos_id`, `nama_file`, `is_primary`, `created_at`)
 (7, 4, 'kos_4_1780733036_0.jpg', 1, '2026-06-06 16:03:56'),
 (8, 5, 'kos_5_1780733389_0.jpg', 1, '2026-06-06 16:09:49'),
 (9, 6, 'kos_6_1781762320_0.jpg', 1, '2026-06-18 13:58:40'),
-(10, 7, 'kos_7_1781830778_0.jpg', 1, '2026-06-19 08:59:38');
+(10, 7, 'kos_7_1781830778_0.jpg', 1, '2026-06-19 08:59:38'),
+(11, 9, 'kos_9_1782157635_0.jpg', 1, '2026-06-23 03:47:15'),
+(12, 9, 'kos_9_1782157635_1.jpg', 0, '2026-06-23 03:47:15'),
+(13, 10, 'kos_10_1782158039_0.jpg', 1, '2026-06-23 03:53:59');
 
 -- --------------------------------------------------------
 
@@ -131,7 +135,12 @@ INSERT INTO `notifikasi` (`id`, `user_id`, `kos_id`, `report_id`, `pesan`, `tipe
 (11, 5, 1, 6, 'Laporan untuk kos \"Kos Ayu\" mendapat tanggapan admin: terima kasih atas lapoaran yang diberikan, akan segera ditindak lanjut', 'info', 1, '2026-06-01 12:38:04'),
 (12, 9, 1, 6, 'Laporan untuk kos \"Kos Ayu\" mendapat tanggapan admin: terima kasih atas lapoaran yang diberikan, akan segera ditindak lanjut', 'info', 1, '2026-06-01 12:38:04'),
 (13, 10, 4, 7, 'Ada laporan baru pada kos \"Kos NCT\" yang perlu ditinjau.', 'info', 0, '2026-06-18 14:00:42'),
-(14, 10, 4, 8, 'Ada laporan baru pada kos \"Kos NCT\" yang perlu ditinjau.', 'info', 0, '2026-06-19 08:56:45');
+(14, 10, 4, 8, 'Ada laporan baru pada kos \"Kos NCT\" yang perlu ditinjau.', 'info', 0, '2026-06-19 08:56:45'),
+(15, 13, 8, 9, 'Ada laporan baru pada kos \"Kos Jen\" yang perlu ditinjau.', 'info', 1, '2026-06-23 04:08:56'),
+(16, 12, 8, 9, 'Pemilik kos telah memberikan tanggapan terhadap laporan Anda.', 'info', 1, '2026-06-23 04:09:46'),
+(17, 13, 8, 9, 'Laporan untuk kos \"Kos Jen\" mendapat tanggapan admin: Permasalahan telah diselesaikan', 'info', 1, '2026-06-23 04:11:03'),
+(18, 12, 8, 9, 'Laporan untuk kos \"Kos Jen\" mendapat tanggapan admin: Permasalahan telah diselesaikan', 'info', 1, '2026-06-23 04:11:03'),
+(19, 13, 9, 10, 'Ada laporan baru pada kos \"Kos Merdeka\" yang perlu ditinjau.', 'info', 0, '2026-06-23 10:37:33');
 
 -- --------------------------------------------------------
 
@@ -158,14 +167,8 @@ CREATE TABLE `reports` (
 --
 
 INSERT INTO `reports` (`id`, `reporter_id`, `kos_id`, `alasan`, `keterangan`, `status`, `created_at`, `level_peringatan`, `tanggapan_admin`, `tanggapan_pemilik`, `foto_tanggapan`) VALUES
-(1, 8, 1, 'Informasi tidak sesuai kenyataan', NULL, 'selesai', '2026-05-21 11:02:30', 0, NULL, NULL, NULL),
-(2, 8, 1, 'Informasi tidak sesuai kenyataan', NULL, 'pending', '2026-06-01 10:47:50', 0, NULL, NULL, NULL),
-(3, 8, 1, 'Informasi tidak sesuai kenyataan', NULL, 'ditinjau', '2026-06-01 11:01:11', 0, 'terima kasih atas laporan anda, akan segera kami tindak lanjuti dan perbaiki segala kekurangan ', 'fasilitasnya ada, tapi kemarin lagi rusak, dan akan segera diperbaiki, terima kasih atas laporannya', NULL),
-(4, 8, 1, 'Informasi tidak sesuai kenyataan', NULL, 'ditinjau', '2026-06-01 11:42:15', 0, 'hehe', 'hehe', NULL),
-(5, 9, 2, 'Foto tidak asli / menyesatkan', 'foto pinterest', 'ditinjau', '2026-06-01 12:03:52', 0, 'hehe', 'hehe', NULL),
-(6, 9, 1, 'Informasi tidak sesuai kenyataan', 'keterangan fasilitas terdapat AC namun aslinya tidak ada', 'ditinjau', '2026-06-01 12:35:14', 0, 'terima kasih atas lapoaran yang diberikan, akan segera ditindak lanjut', 'fasilitas memang ada tapi lagi rusak jadi masih dalam masa perbaikan, akan kami segerakan untuk perbaikan', NULL),
-(7, 8, 4, 'Informasi tidak sesuai kenyataan', 'ga sesuai', 'pending', '2026-06-18 14:00:42', 0, NULL, NULL, NULL),
-(8, 8, 4, 'Informasi tidak sesuai kenyataan', 'Informasi titik kos belum sesuai', 'pending', '2026-06-19 08:56:45', 0, NULL, NULL, NULL);
+(9, 12, 8, 'Informasi tidak sesuai kenyataan', 'jembatan jelek', 'selesai', '2026-06-23 04:08:56', 0, 'Permasalahan telah diselesaikan', 'Sudah diperbaiki untuk kenyamanan', 'bela_13_1782158986.jpg'),
+(10, 12, 9, 'Informasi tidak sesuai kenyataan', 'sgufshjgjvk', 'pending', '2026-06-23 10:37:33', 0, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -189,7 +192,8 @@ CREATE TABLE `reviews` (
 
 INSERT INTO `reviews` (`id`, `kos_id`, `user_id`, `rating`, `komentar`, `created_at`, `foto`) VALUES
 (1, 1, 8, 5, 'bagus banget mantap mendunia slebew', '2026-05-21 11:01:54', 'ulasan_8_1779332514.jpg'),
-(2, 1, 9, 4, 'nyaman tapi cat nya belum diperbarui', '2026-05-31 12:20:39', 'ulasan_9_1780201239.jpg');
+(2, 1, 9, 4, 'nyaman tapi cat nya belum diperbarui', '2026-05-31 12:20:39', 'ulasan_9_1780201239.jpg'),
+(3, 8, 12, 5, 'Kos nya sangat nyaman, harga dan fasilitas sesuai', '2026-06-23 04:07:48', 'ulasan_12_1782158867.jpg');
 
 -- --------------------------------------------------------
 
@@ -212,12 +216,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `nama`, `email`, `password`, `role`, `no_hp`, `created_at`) VALUES
-(3, 'Admin Juli', 'admin@carikosku.com', '4c37dbfae76a9a48544d7248127d2d29', 'admin', NULL, '2026-05-12 04:50:59'),
-(6, 'Juli', 'juli@admin.com', '4c37dbfae76a9a48544d7248127d2d29', 'admin', NULL, '2026-05-16 02:54:53'),
-(8, 'dita ayu julita', 'ditaaayujulita@gmail.com', '42cbbe8a1f471041ae07b725de5fe1a0', 'penyewa', NULL, '2026-05-21 02:51:59'),
-(9, 'mark', 'mark@gmail.com', '07ca4741cb7e21cf0eefd4b9019f0884', 'penyewa', NULL, '2026-05-31 04:18:53'),
-(10, 'Haechan Lee', 'haechan@gmail.com', '23468c3ed6575892ccde73d11d2a2e1a', 'pemilik', '082345725374', '2026-06-06 07:59:51'),
-(11, 'ayu', 'juli@gmail.com', 'e21bb074fd150247fac5c5402e139097', 'pemilik', '098736352436', '2026-06-18 05:55:07');
+(12, 'dita ayu julita', 'ditaaayujulita@gmail.com', '$2y$10$iKSdPe5VfOLLwnl5T93kfOUSpCUUMm0giONTE87hLXwN2pNm.PRXK', 'penyewa', NULL, '2026-06-22 19:32:06'),
+(13, 'Jennie', 'juli@gmail.com', '$2y$10$l7Q0xZ7K3qbJF7QNdPVbUei5iQPCMgNxHkV62jh/IHntwc3yy.xr.', 'pemilik', '081234567890', '2026-06-22 19:38:53'),
+(15, 'Admin', 'admin@gmail.com', '$2y$10$3fvK8FsQ9rti4UfpqhnJOuCu6lLkvAfZxKzDN6F6sCVQ7Z6qUNpn6', 'admin', NULL, '2026-06-22 20:01:46');
 
 --
 -- Indexes for dumped tables
@@ -277,43 +278,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `kos`
 --
 ALTER TABLE `kos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `kos_foto`
 --
 ALTER TABLE `kos_foto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `notifikasi`
 --
 ALTER TABLE `notifikasi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `reports`
 --
 ALTER TABLE `reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables

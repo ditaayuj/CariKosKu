@@ -151,3 +151,8 @@ AI usage statement
 5) bagian yang saya ubah + alasan:
 - Koordinat default disesuaikan ke pusat Kota Mataram (-8.5833, 116.1167) AI menggunakan koordinat generik, disesuaikan ke lokasi target pengguna. Karena sistem ini butuh peta interaktif, yang pemiliknya itu gak perlu susah pikir longtitude latitude nya, jadi titik kos bisa langsung diklik dan longtitude latitude bisa otomatis terdeteksi.
 - Bagian laporan admin, pemilik dan juga penyewa. Karena admin harus bisa melihat juga laporan dari penyewa dan mengambil tindakan yang sesuai. Pemilik juga harus melihat untuk dijadikan evaluasi dan memberikan tanggapan
+
+FINALISASI:
+Beranda penyewa: ![Beranda Penyewa](Beranda_penyewa.png)
+Dashboard pemilik: ![Dashboard Pemilik](Dashboard_pemilik.png)
+Dashboard Admin: ![Dashboard Admin](Dashboard_admin.png)
